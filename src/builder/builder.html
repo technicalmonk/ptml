@@ -7,15 +7,11 @@
 <link rel="stylesheet" href="../engine/fonts.css">
 <link rel="stylesheet" href="../engine/base.css">
 <style>
-/* ── Builder chrome (dark sidebar + light editor) ───────────── */
 * { box-sizing: border-box; }
 html, body { margin:0; padding:0; height:100vh; overflow:hidden;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, sans-serif;
   background: #0a0a0c; color: #e0e0e6; }
-
 .app { display:flex; height:100vh; }
-
-/* ── Sidebar ─────────────────────────────────────────────────── */
 .sidebar { width:56px; background:#0d0d10; border-right:1px solid rgba(255,255,255,0.06);
   display:flex; flex-direction:column; align-items:center; padding:16px 0; gap:12px; z-index:10; }
 .sidebar button { width:36px; height:36px; border-radius:8px; border:none;
@@ -27,8 +23,6 @@ html, body { margin:0; padding:0; height:100vh; overflow:hidden;
 .sidebar .brand { width:28px; height:28px; border-radius:6px;
   background:linear-gradient(135deg,#3b6cff,#7a5cff 55%,#ff5c8a); display:flex;
   align-items:center; justify-content:center; font-size:11px; font-weight:900; color:#fff; }
-
-/* ── Panel (slides list / properties / analytics) ─────────────── */
 .panel { width:240px; background:#111114; border-right:1px solid rgba(255,255,255,0.06);
   display:flex; flex-direction:column; overflow:hidden; }
 .panel-header { padding:14px 16px; border-bottom:1px solid rgba(255,255,255,0.06);
@@ -36,8 +30,6 @@ html, body { margin:0; padding:0; height:100vh; overflow:hidden;
 .panel-body { flex:1; overflow-y:auto; padding:12px; }
 .panel-body::-webkit-scrollbar { width:6px; }
 .panel-body::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.08); border-radius:3px; }
-
-/* Slide thumbnails list */
 .slide-thumb { position:relative; margin-bottom:10px; border:2px solid transparent;
   border-radius:8px; overflow:hidden; cursor:pointer; background:#1a1a1e; aspect-ratio:16/9; }
 .slide-thumb:hover { border-color:rgba(255,255,255,0.15); }
@@ -51,8 +43,6 @@ html, body { margin:0; padding:0; height:100vh; overflow:hidden;
   border:none; border-radius:4px; background:rgba(230,68,90,0.8); color:#fff; font-size:11px;
   cursor:pointer; display:none; align-items:center; justify-content:center; }
 .slide-thumb:hover .slide-thumb-del { display:flex; }
-
-/* Theme picker */
 .theme-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
 .theme-chip { padding:8px 10px; border-radius:8px; border:1px solid rgba(255,255,255,0.06);
   background:#1a1a1e; color:#888; font-size:11px; cursor:pointer; text-align:center;
@@ -61,8 +51,6 @@ html, body { margin:0; padding:0; height:100vh; overflow:hidden;
 .theme-chip.active { border-color:#3b6cff; color:#3b6cff; background:rgba(59,108,255,0.08); }
 .theme-chip.locked { opacity:0.4; cursor:not-allowed; }
 .theme-chip.locked::after { content:' 🔒'; }
-
-/* ── Editor pane ─────────────────────────────────────────────── */
 .editor-pane { flex:1; display:flex; flex-direction:column; background:#0a0a0c; }
 .editor-toolbar { display:flex; align-items:center; gap:8px; padding:10px 16px;
   border-bottom:1px solid rgba(255,255,255,0.06); background:#0d0d10; }
@@ -73,8 +61,21 @@ html, body { margin:0; padding:0; height:100vh; overflow:hidden;
   background:rgba(255,255,255,0.06); color:#aaa; font-size:12px; cursor:pointer; transition:all .15s; }
 .editor-toolbar button:hover { background:rgba(255,255,255,0.12); color:#fff; }
 .editor-toolbar button.primary { background:linear-gradient(135deg,#3b6cff,#7a5cff); color:#fff; }
-
-/* Split editor + preview */
+.fmt-toolbar { display:flex; align-items:center; gap:4px; padding:6px 16px;
+  border-bottom:1px solid rgba(255,255,255,0.06); background:#0d0d10; flex-wrap:wrap; }
+.fmt-toolbar .sep { width:1px; height:20px; background:rgba(255,255,255,0.08); margin:0 6px; }
+.fmt-toolbar button { width:28px; height:28px; border-radius:4px; border:none;
+  background:transparent; color:#888; cursor:pointer; font-size:13px;
+  display:flex; align-items:center; justify-content:center; transition:all .12s; }
+.fmt-toolbar button:hover { background:rgba(255,255,255,0.08); color:#ccc; }
+.fmt-toolbar button:active { background:rgba(59,108,255,0.15); color:#3b6cff; }
+.fmt-toolbar select { height:28px; border-radius:4px; border:1px solid rgba(255,255,255,0.08);
+  background:rgba(255,255,255,0.04); color:#aaa; font-size:11px; padding:0 6px;
+  cursor:pointer; outline:none; }
+.fmt-toolbar select:focus { border-color:#3b6cff; }
+.fmt-toolbar .mode-toggle { margin-left:auto; padding:4px 12px; border-radius:6px;
+  border:1px solid rgba(255,255,255,0.1); background:transparent; color:#aaa;
+  font-size:11px; cursor:pointer; transition:all .12s; width:auto; }
 .split { display:flex; flex:1; overflow:hidden; }
 .editor-wrap { flex:1; display:flex; flex-direction:column; }
 .editor-textarea { flex:1; width:100%; border:none; outline:none; resize:none;
@@ -83,15 +84,11 @@ html, body { margin:0; padding:0; height:100vh; overflow:hidden;
   tab-size:2; }
 .editor-textarea::-webkit-scrollbar { width:6px; }
 .editor-textarea::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.08); border-radius:3px; }
-
-/* Preview iframe */
 .preview-wrap { width:50%; border-left:1px solid rgba(255,255,255,0.06); background:#000;
   position:relative; }
 .preview-iframe { width:100%; height:100%; border:none; }
 .preview-empty { display:flex; align-items:center; justify-content:center; height:100%;
   color:#444; font-size:14px; }
-
-/* ── Modal ───────────────────────────────────────────────────── */
 .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:100;
   display:none; align-items:center; justify-content:center; }
 .modal-overlay.show { display:flex; }
@@ -99,8 +96,6 @@ html, body { margin:0; padding:0; height:100vh; overflow:hidden;
   padding:32px; max-width:560px; width:90%; max-height:80vh; overflow-y:auto; }
 .modal h2 { margin:0 0 8px; font-size:20px; color:#fff; }
 .modal p { color:#8a8f9e; font-size:14px; margin:0 0 24px; line-height:1.5; }
-
-/* Analytics dashboard */
 .stats-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:20px; }
 .stat-card { background:#1a1a1e; border-radius:10px; padding:16px; text-align:center; }
 .stat-card .stat-value { font-size:28px; font-weight:800; color:#3b6cff; }
@@ -110,8 +105,6 @@ html, body { margin:0; padding:0; height:100vh; overflow:hidden;
 .analytics-table th { text-align:left; padding:8px; color:#555; font-weight:500;
   border-bottom:1px solid rgba(255,255,255,0.06); }
 .analytics-table td { padding:8px; color:#aaa; border-bottom:1px solid rgba(255,255,255,0.03); }
-
-/* Upgrade banner */
 .upgrade-banner { background:linear-gradient(135deg,rgba(59,108,255,0.1),rgba(122,92,255,0.1));
   border:1px solid rgba(59,108,255,0.2); border-radius:10px; padding:16px; margin-top:16px;
   text-align:center; }
@@ -120,8 +113,6 @@ html, body { margin:0; padding:0; height:100vh; overflow:hidden;
 .upgrade-banner button { padding:8px 20px; border-radius:8px; border:none;
   background:linear-gradient(135deg,#3b6cff,#7a5cff); color:#fff; font-size:13px;
   font-weight:600; cursor:pointer; }
-
-/* Toast */
 .toast { position:fixed; bottom:24px; right:24px; background:#1a1a1e;
   border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:12px 20px;
   color:#e0e0e6; font-size:13px; z-index:200; transform:translateY(100px);
@@ -129,11 +120,27 @@ html, body { margin:0; padding:0; height:100vh; overflow:hidden;
 .toast.show { transform:translateY(0); opacity:1; }
 .toast.success { border-color:rgba(26,175,108,0.3); }
 .toast.error { border-color:rgba(230,68,90,0.3); }
+[contenteditable="true"]:focus { outline:none; }
+[contenteditable="true"] h1 { font-size:36px; font-weight:800; margin:0 0 8px; color:#fff; }
+[contenteditable="true"] h2 { font-size:28px; font-weight:700; margin:0 0 6px; color:#e0e0e6; }
+[contenteditable="true"] h3 { font-size:20px; font-weight:600; margin:0 0 4px; color:#ccc; }
+[contenteditable="true"] p { margin:0 0 8px; }
+[contenteditable="true"] strong { color:#fff; }
+[contenteditable="true"] em { color:#ddd; font-style:italic; }
+[contenteditable="true"] code { background:rgba(255,255,255,0.08); padding:1px 5px;
+  border-radius:3px; font-family:monospace; font-size:12px; color:#a0d0ff; }
+[contenteditable="true"] pre { background:rgba(255,255,255,0.04); padding:12px 16px;
+  border-radius:6px; border:1px solid rgba(255,255,255,0.06); margin:8px 0;
+  font-family:monospace; font-size:12px; white-space:pre-wrap; }
+[contenteditable="true"] blockquote { border-left:3px solid rgba(59,108,255,0.4);
+  padding:6px 14px; margin:8px 0; color:#aaa; font-style:italic; }
+[contenteditable="true"] hr { border:none; border-top:1px solid rgba(255,255,255,0.08); margin:16px 0; }
+[contenteditable="true"] ul, [contenteditable="true"] ol { padding-left:24px; }
+[contenteditable="true"] li { margin-bottom:4px; }
 </style>
 </head>
 <body>
 <div class="app">
-  <!-- Sidebar -->
   <div class="sidebar">
     <div class="brand">P</div>
     <button id="nav-decks" class="active" title="Decks">📁</button>
@@ -143,14 +150,10 @@ html, body { margin:0; padding:0; height:100vh; overflow:hidden;
     <div class="spacer"></div>
     <button id="nav-upgrade" title="Upgrade" style="color:#ff5c8a">⭐</button>
   </div>
-
-  <!-- Panel -->
   <div class="panel" id="panel">
     <div class="panel-header" id="panel-header">Slides</div>
     <div class="panel-body" id="panel-body"></div>
   </div>
-
-  <!-- Editor + Preview -->
   <div class="editor-pane">
     <div class="editor-toolbar">
       <input type="text" id="deck-title" placeholder="Untitled deck" value="">
@@ -158,10 +161,30 @@ html, body { margin:0; padding:0; height:100vh; overflow:hidden;
       <button onclick="saveDeck()">Save</button>
       <button onclick="togglePlan()" id="plan-badge" style="background:rgba(26,175,108,0.15);color:#1aaf6c">FREE</button>
     </div>
+    <div class="fmt-toolbar" id="fmt-toolbar">
+      <select id="layout-select" title="Slide layout preset"><option value="">+ Slide</option><option value="content">content</option><option value="cover">cover</option><option value="bullets">bullets</option><option value="comparison">comparison</option><option value="big-quote">big-quote</option><option value="code">code</option></select>
+      <button onclick="PTMLToolbar.action('add-slide', document.getElementById('layout-select').value||undefined)" title="Add slide at cursor">+</button>
+      <button onclick="PTMLToolbar.action('delete-slide')" title="Delete current slide">✕</button>
+      <span class="sep"></span>
+      <button onclick="PTMLToolbar.action('heading',1)" title="Heading 1"><b>H1</b></button>
+      <button onclick="PTMLToolbar.action('heading',2)" title="Heading 2"><b>H2</b></button>
+      <button onclick="PTMLToolbar.action('heading',3)" title="Heading 3">H3</button>
+      <span class="sep"></span>
+      <button onclick="PTMLToolbar.action('bold')" title="Bold"><b>B</b></button>
+      <button onclick="PTMLToolbar.action('italic')" title="Italic"><i>I</i></button>
+      <span class="sep"></span>
+      <button onclick="PTMLToolbar.action('bullet-list')" title="Bullet list">•≡</button>
+      <button onclick="PTMLToolbar.action('numbered-list')" title="Numbered list">1≡</button>
+      <span class="sep"></span>
+      <button onclick="PTMLToolbar.action('code')" title="Inline code">&lt;/&gt;</button>
+      <button onclick="PTMLToolbar.action('blockquote')" title="Blockquote">❝</button>
+      <button onclick="PTMLToolbar.action('link')" title="Link">🔗</button>
+      <span class="sep"></span>
+      <button onclick="PTMLToolbar.toggleMode()" class="mode-toggle" id="mode-toggle" title="Toggle Markdown / Rich Text">M↓</button>
+    </div>
     <div class="split">
       <div class="editor-wrap">
-        <textarea class="editor-textarea" id="editor" spellcheck="false"
-          placeholder="---&#10;theme: minimal-white&#10;title: My Deck&#10;---&#10;&#10;# Hello PTML&#10;&#10;Write your slides in Markdown...&#10;&#10;---&#10;&#10;## Second Slide&#10;&#10;- Bullet one&#10;- Bullet two"></textarea>
+        <textarea class="editor-textarea" id="editor" spellcheck="false" placeholder="Write your slides in Markdown..."></textarea>
       </div>
       <div class="preview-wrap">
         <iframe class="preview-iframe" id="preview" sandbox="allow-scripts allow-same-origin"></iframe>
@@ -170,15 +193,10 @@ html, body { margin:0; padding:0; height:100vh; overflow:hidden;
     </div>
   </div>
 </div>
-
-<!-- Modal -->
 <div class="modal-overlay" id="modal-overlay">
   <div class="modal" id="modal-content"></div>
 </div>
-
-<!-- Toast -->
 <div class="toast" id="toast"></div>
-
 <script src="loader.js"></script>
 </body>
 </html>

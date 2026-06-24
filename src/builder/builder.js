@@ -45,6 +45,19 @@ function init() {
     scheduleAutosave();
   });
 
+  // Init formatting toolbar
+  PTMLToolbar.init(editor, {
+    onUpdate: function(md) {
+      if (currentDeck) currentDeck.content = md;
+      updatePreview();
+      scheduleAutosave();
+    },
+    onModeChange: function(newMode) {
+      document.getElementById('mode-toggle').textContent = newMode === 'markdown' ? 'M\u2193' : 'T\u2193';
+      editor = document.getElementById('editor');
+    }
+  });
+
   deckTitle.addEventListener('input', () => {
     if (currentDeck) {
       currentDeck.title = deckTitle.value;
