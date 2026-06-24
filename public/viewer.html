@@ -75,7 +75,7 @@
   <script src="../src/parser/ptml-parser.js"></script>
   <script src="../src/parser/ptml-loader.js"></script>
   <script>
-    // Auto-detect ?deck= URL parameter
+     // Auto-detect ?deck= URL parameter
     const params = new URLSearchParams(location.search);
     const deckParam = params.get('deck');
     if (deckParam) {
@@ -112,8 +112,7 @@
       // Use PTML loader to render inline
       PTMLLoader.loadDeck(url, document.documentElement, {
         basePath: '../src/engine'
-      });
-    }
+      });    }
   </script>
 </body>
 </html>

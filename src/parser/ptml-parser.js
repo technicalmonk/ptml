@@ -75,8 +75,74 @@
     return text;
   }
 
+  // Comparison layout: splits content on H3 headings into side-by-side columns
+  // Each H3 becomes a column header, list items below it become the column body.
+  function parseComparisonLayout(lines) {
+    var columns = [];
+    var current = null;
+
+    lines.forEach(line => {
+      var h3Match = line.match(/^###\s+(.+)$/);
+      if (h3Match) {
+        current = { heading: h3Match[1], items: [], paragraphs: [] };
+        columns.push(current);
+        return;
+      }
+      if (!current) {
+        // Content before first H3 — treat as slide intro (eyebrow, H2, lede)
+        // We'll prepend it
+        return;
+      }
+      // Collect list items and paragraphs
+      if (line.match(/^\s*[-*+]\s+/)) {
+        current.items.push(parseInline(line.replace(/^\s*[-*+]\s+/, '')));
+      } else if (line.match(/^\s*\d+\.\s+/)) {
+        current.items.push(parseInline(line.replace(/^\s*\d+\.\s+/, '')));
+      } else if (line.trim() === '') {
+        // skip empty lines
+      } else {
+        current.paragraphs.push(parseInline(line));
+      }
+    });
+
+    // Also collect any pre-H3 content (eyebrow, H2 title)
+    var introHTML = '';
+    lines.forEach(line => {
+      var h3Match = line.match(/^###\s+(.+)$/);
+      if (h3Match) return; // stop at first H3 — but this is a simple approach
+      var eyebrowMatch = line.match(/^\[([^\]]+)\]$/);
+      if (eyebrowMatch) { introHTML += '<span class="eyebrow">' + escapeHTML(eyebrowMatch[1]) + '</span>\n'; return; }
+      var h2Match = line.match(/^##\s+(.+)$/);
+      if (h2Match) { introHTML += '<h2 class="title h2">' + parseInline(h2Match[1]) + '</h2>\n'; return; }
+      var h1Match = line.match(/^#\s+(.+)$/);
+      if (h1Match) { introHTML += '<h1 class="title h1">' + parseInline(h1Match[1]) + '</h1>\n'; return; }
+      if (line.trim() === '' || line.trim().startsWith('<!--')) return;
+      // Don't add paragraphs to intro — they belong to columns
+    });
+
+    var colsHTML = columns.map(col => {
+      var itemsHTML = col.items.map(item => '<li>' + item + '</li>').join('\n');
+      var parasHTML = col.paragraphs.map(p => '<p class="dim">' + p + '</p>').join('\n');
+      return '      <div style="flex:1;min-width:0">\n' +
+             '        <h3 class="h3" style="margin-bottom:12px">' + parseInline(col.heading) + '</h3>\n' +
+             (itemsHTML ? '        <ul class="stack" style="margin:0;padding-left:20px;list-style:disc;gap:8px">\n          ' + itemsHTML + '\n        </ul>\n' : '') +
+             (parasHTML ? '        ' + parasHTML + '\n' : '') +
+             '      </div>';
+    }).join('\n      <div style="width:1px;background:var(--border);align-self:stretch;margin:0 24px"></div>\n');
+
+    return introHTML +
+      '    <div style="display:flex;gap:0;margin-top:24px;align-items:flex-start">\n' +
+      colsHTML + '\n' +
+      '    </div>\n';
+  }
+
   // Parse a single slide's markdown into HTML using layout primitives
   function parseSlideContent(lines, layout) {
+    // Comparison layout: split on H3 headings into side-by-side columns
+    if (layout === 'comparison') {
+      return parseComparisonLayout(lines);
+    }
+
     var html = '';
     var i = 0;
     var inList = false;

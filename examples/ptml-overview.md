@@ -46,7 +46,7 @@ Business users are ready to do away with PPTX files. Here is why HTML is the ans
 
 ---
 
-<!-- layout: content -->
+<!-- layout: comparison -->
 
 [Pricing]
 ## Freemium Model
