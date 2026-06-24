@@ -377,6 +377,34 @@ function loadDeckUI() {
   updatePreview();
 }
 
+function loadInspiration(id) {
+  var map = {
+    'insp-ptml': { file: '../examples/ptml-overview.md', title: 'PTML Overview' },
+    'insp-code': { file: '../examples/code-showcase.md', title: 'Code Showcase' },
+    'insp-min': { file: '../examples/minimal-deck.md', title: 'Minimal Deck' },
+    'insp-pitch': { file: 'templates/pitch-deck.md', title: 'Pitch Deck' },
+    'insp-tech': { file: 'templates/tech-talk.md', title: 'Tech Talk' },
+    'insp-weekly': { file: 'templates/weekly-report.md', title: 'Weekly Report' },
+  };
+  var entry = map[id];
+  if (!entry) { showToast('Inspiration not found', 'error'); return; }
+  fetch(entry.file)
+    .then(function(r) { return r.text(); })
+    .then(function(md) {
+      currentDeck = {
+        id: PTMLClient.generateId(),
+        title: entry.title,
+        content: md,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      PTMLClient.saveDeck(currentDeck);
+      loadDeckUI();
+      switchView('decks');
+    })
+    .catch(function() { showToast('Failed to load inspiration', 'error'); });
+}
+
 function saveDeck() {
   if (!currentDeck) return;
   currentDeck.title = deckTitle.value;
