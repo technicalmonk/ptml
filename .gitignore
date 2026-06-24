@@ -1,0 +1,19 @@
+# Dependencies
+node_modules/
+
+# Framework sources (cloned for reference, not deployed)
+frameworks/
+
+# Build artifacts (regenerated on build)
+examples/*.html
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+*.swp
+*.swo
+*~
+.vscode/
+.idea/

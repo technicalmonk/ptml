@@ -1,0 +1,13 @@
+{
+  "name": "ptml",
+  "version": "0.1.0",
+  "description": "HTML-based presentation system — build decks from Markdown, render in any browser.",
+  "license": "MIT",
+  "scripts": {
+    "build": "node src/parser/build.js",
+    "build:all": "node src/parser/build.js examples/ptml-overview.md examples/ptml-overview.html && node src/parser/build.js examples/ptml-overview.md examples/ptml-overview-embed.html --embed",
+    "serve": "python3 -m http.server 8080",
+    "viewer": "open http://localhost:8080/public/viewer.html"
+  },
+  "keywords": ["presentation", "slides", "html", "markdown", "ptml", "pptx-alternative"]
+}
