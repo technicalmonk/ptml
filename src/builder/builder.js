@@ -153,7 +153,8 @@ function renderSlidesPanel() {
     html += `<div style="margin-top:16px"><div style="font-size:11px;color:#555;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:10px">Current Deck (${slideCount} slides)</div>`;
     for (let i = 0; i < slideCount; i++) {
       const title = getSlideTitle(currentDeck.content, i);
-      html += `<div class="slide-thumb" onclick="goToSlide(${i})" style="background-image:url(${slideThumbSVG(title, '', getThemeAccent(extractTheme(currentDeck.content)||'minimal-white'))});background-size:cover;background-position:center">
+      const subtitle = getSlideSubtitle(currentDeck.content, i);
+      html += `<div class="slide-thumb" onclick="goToSlide(${i})" style="background-image:url(${slideThumbSVG(title, subtitle, getThemeAccent(extractTheme(currentDeck.content)||'minimal-white'))});background-size:cover;background-position:center">
         <span class="slide-thumb-num">${i + 1}</span>
       </div>`;
     }
