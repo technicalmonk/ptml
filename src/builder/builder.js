@@ -40,6 +40,9 @@ function init() {
   document.getElementById('nav-export').onclick = () => switchView('export');
   document.getElementById('nav-upgrade').onclick = () => showUpgradeModal();
 
+  // Brand logo → dashboard
+  document.querySelector('.sidebar .brand').onclick = () => goDashboard();
+
   // Editor live preview
   editor.addEventListener('input', () => {
     updatePreview();
