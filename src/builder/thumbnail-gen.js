@@ -198,3 +198,25 @@ function getThemeAccent(theme) {
     'sharp-mono':'#6b7280','xiaohongshu-white':'#f43f5e','magazine-bold':'#e11d48' };
   return map[theme] || '#0066ff';
 }
+function getSlideSubtitle(md, idx) {
+  var body = md.replace(/^---\n[\s\S]*?\n---\n/, '''''');
+  var parts = body.split(/\n---\n?/);
+  if (idx >= parts.length) return '''''';
+  var slide = parts[idx];
+  var lede = slide.match(/<p class="lede">(.+?)<\/p>/);
+  if (lede) return lede[1].replace(/<[^>]*>/g, '''''');
+  var dim = slide.match(/<p class="dim">(.+?)<\/p>/);
+  if (dim) return dim[1].replace(/<[^>]*>/g, '''''');
+  return '''''';
+}
+function getSlideSubtitle(md, idx) {
+  var body = md.replace(/^---\n[\s\S]*?\n---\n/, '');
+  var parts = body.split(/\n---\n?/);
+  if (idx >= parts.length) return '';
+  var slide = parts[idx];
+  var lede = slide.match(/<p class="lede">(.+?)<\/p>/);
+  if (lede) return lede[1].replace(/<[^>]*>/g, '');
+  var dim = slide.match(/<p class="dim">(.+?)<\/p>/);
+  if (dim) return dim[1].replace(/<[^>]*>/g, '');
+  return '';
+}
