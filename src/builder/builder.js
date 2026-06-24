@@ -13,7 +13,7 @@ let currentView = 'decks'; // decks | theme | fonts | analytics | export
 let saveTimer = null;
 
 // ── DOM refs ───────────────────────────────────────────────────
-const editor = document.getElementById('editor');
+var editor = document.getElementById('editor');
 const preview = document.getElementById('preview');
 const previewEmpty = document.getElementById('preview-empty');
 const deckTitle = document.getElementById('deck-title');
