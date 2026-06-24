@@ -64,9 +64,10 @@ html, body { margin:0; padding:0; height:100vh; overflow:hidden;
 .fmt-toolbar { display:flex; align-items:center; gap:4px; padding:6px 16px;
   border-bottom:1px solid rgba(255,255,255,0.06); background:#0d0d10; flex-wrap:wrap; }
 .fmt-toolbar .sep { width:1px; height:20px; background:rgba(255,255,255,0.08); margin:0 6px; }
-.fmt-toolbar button { width:28px; height:28px; border-radius:4px; border:none;
-  background:transparent; color:#888; cursor:pointer; font-size:13px;
-  display:flex; align-items:center; justify-content:center; transition:all .12s; }
+.fmt-toolbar button { height:28px; border-radius:4px; border:none;
+  background:transparent; color:#888; cursor:pointer; font-size:12px; padding:0 10px;
+  display:flex; align-items:center; justify-content:center; transition:all .12s;
+  white-space:nowrap; }
 .fmt-toolbar button:hover { background:rgba(255,255,255,0.08); color:#ccc; }
 .fmt-toolbar button:active { background:rgba(59,108,255,0.15); color:#3b6cff; }
 .fmt-toolbar select { height:28px; border-radius:4px; border:1px solid rgba(255,255,255,0.08);
@@ -143,7 +144,7 @@ html, body { margin:0; padding:0; height:100vh; overflow:hidden;
 <div class="app">
   <div class="sidebar">
     <div class="brand">P</div>
-    <button id="nav-decks" class="active" title="Decks">📁</button>
+    <button id="nav-decks" class="active" title="Slides">📁</button>
     <button id="nav-theme" title="Themes">🎨</button>
     <button id="nav-fonts" title="Fonts">🔤</button>
     <button id="nav-analytics" title="Analytics">📊</button>
@@ -161,29 +162,28 @@ html, body { margin:0; padding:0; height:100vh; overflow:hidden;
       <button onclick="newDeck()" class="primary">New</button>
       <button onclick="saveDeck()">Save</button>
       <button onclick="togglePlan()" id="plan-badge" style="background:rgba(26,175,108,0.15);color:#1aaf6c">FREE</button>
+      <span class="sep" style="margin-left:auto"></span>
+      <button onclick="PTMLToolbar.toggleMode()" class="mode-toggle" id="mode-toggle" title="Toggle Text / Markdown view">Markdown</button>
     </div>
     <div class="fmt-toolbar" id="fmt-toolbar">
       <select id="layout-select" title="Slide layout preset"><option value="">+ Slide</option><option value="content">content</option><option value="cover">cover</option><option value="bullets">bullets</option><option value="comparison">comparison</option><option value="big-quote">big-quote</option><option value="code">code</option></select>
-      <button onclick="PTMLToolbar.action('add-slide', document.getElementById('layout-select').value||undefined)" title="Add slide at cursor">+</button>
-      <button onclick="PTMLToolbar.action('delete-slide')" title="Delete current slide">✕</button>
+      <button onclick="PTMLToolbar.action('add-slide', document.getElementById('layout-select').value||undefined)" title="Add slide at cursor">+ Slide</button>
+      <button onclick="PTMLToolbar.action('delete-slide')" title="Delete current slide">Del Slide</button>
       <span class="sep"></span>
-      <button onclick="PTMLToolbar.action('heading',1)" title="Heading 1"><b>H1</b></button>
-      <button onclick="PTMLToolbar.action('heading',2)" title="Heading 2"><b>H2</b></button>
+      <button onclick="PTMLToolbar.action('heading',1)" title="Heading 1">H1</button>
+      <button onclick="PTMLToolbar.action('heading',2)" title="Heading 2">H2</button>
       <button onclick="PTMLToolbar.action('heading',3)" title="Heading 3">H3</button>
       <span class="sep"></span>
-      <button onclick="PTMLToolbar.action('bold')" title="Bold"><b>B</b></button>
-      <button onclick="PTMLToolbar.action('italic')" title="Italic"><i>I</i></button>
+      <button onclick="PTMLToolbar.action('bold')" title="Bold">Bold</button>
+      <button onclick="PTMLToolbar.action('italic')" title="Italic">Italic</button>
       <span class="sep"></span>
-      <button onclick="PTMLToolbar.action('bullet-list')" title="Bullet list">•≡</button>
-      <button onclick="PTMLToolbar.action('numbered-list')" title="Numbered list">1≡</button>
+      <button onclick="PTMLToolbar.action('bullet-list')" title="Bullet list">• List</button>
+      <button onclick="PTMLToolbar.action('numbered-list')" title="Numbered list">1. List</button>
       <span class="sep"></span>
-      <button onclick="PTMLToolbar.action('code')" title="Inline code">&lt;/&gt;</button>
-      <button onclick="PTMLToolbar.action('blockquote')" title="Blockquote">❝</button>
-      <button onclick="PTMLToolbar.action('link')" title="Link">🔗</button>
-      <span class="sep"></span>
-      <button onclick="showPexelsModal()" title="Search stock photos (Pexels)">🖼</button>
-      <span class="sep"></span>
-      <button onclick="PTMLToolbar.toggleMode()" class="mode-toggle" id="mode-toggle" title="Toggle Markdown / Rich Text">M↓</button>
+      <button onclick="PTMLToolbar.action('code')" title="Inline code">&lt;/&gt; Code</button>
+      <button onclick="PTMLToolbar.action('blockquote')" title="Blockquote">Quote</button>
+      <button onclick="PTMLToolbar.action('link')" title="Link">Link</button>
+      <button onclick="showPexelsModal()" title="Search stock photos (Pexels)">Image</button>
     </div>
     <div class="split">
       <div class="editor-wrap">

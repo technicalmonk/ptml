@@ -239,43 +239,32 @@
     var md = '';
     node.childNodes.forEach(function (child) {
       if (child.nodeType === 3) {
-        // Text node
         md += child.textContent;
       } else if (child.nodeType === 1) {
         var tag = child.tagName.toLowerCase();
+        var inner = domToMarkdown(child);
 
-        if (tag === 'h1') md += '\n# ' + domToMarkdown(child) + '\n';
-        else if (tag === 'h2') md += '\n## ' + domToMarkdown(child) + '\n';
-        else if (tag === 'h3') md += '\n### ' + domToMarkdown(child) + '\n';
-        else if (tag === 'h4') md += '\n#### ' + domToMarkdown(child) + '\n';
-        else if (tag === 'p') md += domToMarkdown(child) + '\n\n';
-        else if (tag === 'strong' || tag === 'b') md += '**' + domToMarkdown(child) + '**';
-        else if (tag === 'em' || tag === 'i') md += '*' + domToMarkdown(child) + '*';
-        else if (tag === 'code') {
-          // Check if parent is <pre>
-          if (child.parentNode && child.parentNode.tagName.toLowerCase() === 'pre') {
-            md += '\n```\n' + child.textContent + '\n```\n';
-          } else {
-            md += '`' + child.textContent + '`';
-          }
-        } else if (tag === 'pre') md += domToMarkdown(child);
+        if (tag === 'h1') md += '# ' + inner + '\n';
+        else if (tag === 'h2') md += '## ' + inner + '\n';
+        else if (tag === 'h3') md += '### ' + inner + '\n';
+        else if (tag === 'h4') md += '#### ' + inner + '\n';
+        else if (tag === 'p') md += inner + '\n';
+        else if (tag === 'strong' || tag === 'b') md += '**' + inner + '**';
+        else if (tag === 'em' || tag === 'i') md += '*' + inner + '*';
+        else if (tag === 'code' && child.parentNode && child.parentNode.tagName.toLowerCase() === 'pre') {
+          md += '```\n' + child.textContent + '\n```\n';
+        } else if (tag === 'code') md += '`' + child.textContent + '`';
+        else if (tag === 'pre') md += inner;
         else if (tag === 'blockquote') {
-          var lines = domToMarkdown(child).trim().split('\n');
-          lines.forEach(function (l) { md += '> ' + l + '\n'; });
-        } else if (tag === 'ul') {
-          child.querySelectorAll(':scope > li').forEach(function (li) {
-            md += '- ' + domToMarkdown(li) + '\n';
-          });
-        } else if (tag === 'ol') {
-          child.querySelectorAll(':scope > li').forEach(function (li, i) {
-            md += (i + 1) + '. ' + domToMarkdown(li) + '\n';
-          });
-        } else if (tag === 'li') md += domToMarkdown(child);
-        else if (tag === 'a') md += '[' + domToMarkdown(child) + '](' + child.getAttribute('href') + ')';
+          inner.trim().split('\n').forEach(function (l) { if (l.trim()) md += '> ' + l.trim() + '\n'; });
+        } else if (tag === 'ul') md += inner;
+        else if (tag === 'ol') md += inner;
+        else if (tag === 'li') md += '- ' + inner.trim() + '\n';
+        else if (tag === 'a') md += '[' + inner + '](' + child.getAttribute('href') + ')';
         else if (tag === 'img') md += '![' + (child.getAttribute('alt') || '') + '](' + child.getAttribute('src') + ')';
         else if (tag === 'br') md += '\n';
-        else if (tag === 'hr') md += '\n---\n';
-        else if (tag === 'div' || tag === 'span' || tag === 'section') md += domToMarkdown(child);
+        else if (tag === 'hr') md += '---\n';
+        else if (tag === 'div' || tag === 'span' || tag === 'section') md += inner;
         else md += child.textContent || '';
       }
     });

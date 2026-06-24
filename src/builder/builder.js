@@ -54,7 +54,7 @@ function init() {
       scheduleAutosave();
     },
     onModeChange: function(newMode) {
-      document.getElementById('mode-toggle').textContent = newMode === 'markdown' ? 'M\u2193' : 'T\u2193';
+      document.getElementById('mode-toggle').textContent = newMode === 'markdown' ? 'Markdown' : 'Text';
       editor = document.getElementById('editor');
     }
   });
@@ -145,24 +145,12 @@ function switchView(view) {
 // ── Slides Panel ───────────────────────────────────────────────
 function renderSlidesPanel() {
   panelHeader.textContent = 'Slides';
-  const decks = PTMLClient.getDecks();
 
-  let html = '<div style="margin-bottom:16px">';
-  decks.forEach(d => {
-    const isActive = currentDeck && d.id === currentDeck.id;
-    const slideCount = countSlides(d.content);
-    html += `<div class="slide-thumb ${isActive ? 'active' : ''}" onclick="loadDeck('${d.id}')">
-      <span class="slide-thumb-num">${slideCount}</span>
-      <div class="slide-thumb-preview">${escapeHtml(d.title || 'Untitled')}</div>
-    </div>`;
-  });
-  html += '</div>';
-  html += `<button onclick="newDeck()" style="width:100%;padding:10px;border:1px dashed rgba(255,255,255,0.15);border-radius:8px;background:transparent;color:#666;font-size:12px;cursor:pointer">+ New Deck</button>`;
+  let html = `<button onclick="newDeck()" style="width:100%;padding:10px;border:1px dashed rgba(255,255,255,0.15);border-radius:8px;background:transparent;color:#666;font-size:12px;cursor:pointer">+ New Deck</button>`;
 
-  // Show current deck slides
   if (currentDeck) {
     const slideCount = countSlides(currentDeck.content);
-    html += `<div style="margin-top:20px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.06)"><div style="font-size:11px;color:#555;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:10px">Current Deck (${slideCount} slides)</div>`;
+    html += `<div style="margin-top:16px"><div style="font-size:11px;color:#555;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:10px">Current Deck (${slideCount} slides)</div>`;
     for (let i = 0; i < slideCount; i++) {
       const title = getSlideTitle(currentDeck.content, i);
       html += `<div class="slide-thumb" onclick="goToSlide(${i})">
@@ -171,6 +159,8 @@ function renderSlidesPanel() {
       </div>`;
     }
     html += '</div>';
+  } else {
+    html += '<div style="padding:20px;text-align:center;color:#555;font-size:13px">No deck open.<br>Create one or select from the Dashboard.</div>';
   }
 
   panelBody.innerHTML = html;
@@ -375,6 +365,8 @@ function loadDeckUI() {
   deckTitle.value = currentDeck.title || 'Untitled';
   editor.value = currentDeck.content || '';
   updatePreview();
+  // Default to Text (rich text) view
+  setTimeout(function() { PTMLToolbar.switchToRichText(); }, 100);
 }
 
 function loadInspiration(id) {
