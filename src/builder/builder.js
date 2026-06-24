@@ -9,7 +9,7 @@
 
 // ── State ─────────────────────────────────────────────────────
 let currentDeck = null;
-let currentView = 'decks'; // decks | theme | analytics | export
+let currentView = 'decks'; // decks | theme | fonts | analytics | export
 let saveTimer = null;
 
 // ── DOM refs ───────────────────────────────────────────────────
@@ -35,6 +35,7 @@ function init() {
   // Nav buttons
   document.getElementById('nav-decks').onclick = () => switchView('decks');
   document.getElementById('nav-theme').onclick = () => switchView('theme');
+  document.getElementById('nav-fonts').onclick = () => switchView('fonts');
   document.getElementById('nav-analytics').onclick = () => switchView('analytics');
   document.getElementById('nav-export').onclick = () => switchView('export');
   document.getElementById('nav-upgrade').onclick = () => showUpgradeModal();
@@ -65,7 +66,45 @@ function init() {
     }
   });
 
-  // Load most recent deck or show template chooser
+  // Dashboard signals: open specific deck, inspiration, or template chooser
+  var openDeckId = localStorage.getItem('ptml:open-deck');
+  var openInspiration = localStorage.getItem('ptml:open-inspiration');
+  var newDeckFlag = localStorage.getItem('ptml:new-deck');
+  localStorage.removeItem('ptml:open-deck');
+  localStorage.removeItem('ptml:open-inspiration');
+  localStorage.removeItem('ptml:new-deck');
+
+  if (openDeckId) {
+    var deck = PTMLClient.getDeck(openDeckId);
+    if (deck) {
+      loadDeck(deck.id);
+      switchView('decks');
+      return;
+    }
+  }
+
+  if (openInspiration) {
+    loadInspiration(openInspiration);
+    return;
+  }
+
+  if (newDeckFlag === 'template-chooser') {
+    TemplateChooser.show(function(template) {
+      currentDeck = {
+        id: PTMLClient.generateId(),
+        title: template.title || 'Untitled Deck',
+        content: template.content,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      PTMLClient.saveDeck(currentDeck);
+      loadDeckUI();
+      switchView('decks');
+    });
+    return;
+  }
+
+  // Fallback: Load most recent deck or show template chooser
   const decks = PTMLClient.getDecks();
   if (decks.length > 0) {
     loadDeck(decks[decks.length - 1].id);
@@ -93,11 +132,12 @@ function switchView(view) {
   currentView = view;
   // Update sidebar active state
   document.querySelectorAll('.sidebar button').forEach(b => b.classList.remove('active'));
-  const navMap = { decks: 'nav-decks', theme: 'nav-theme', analytics: 'nav-analytics', export: 'nav-export' };
+  const navMap = { decks: 'nav-decks', theme: 'nav-theme', fonts: 'nav-fonts', analytics: 'nav-analytics', export: 'nav-export' };
   if (navMap[view]) document.getElementById(navMap[view]).classList.add('active');
 
   if (view === 'decks') renderSlidesPanel();
   else if (view === 'theme') renderThemePanel();
+  else if (view === 'fonts') renderFontsPanel();
   else if (view === 'analytics') renderAnalyticsPanel();
   else if (view === 'export') renderExportPanel();
 }
@@ -160,6 +200,56 @@ function renderThemePanel() {
       <button onclick="showUpgradeModal()">Upgrade to Pro</button>
     </div>`;
   }
+
+  panelBody.innerHTML = html;
+}
+
+function renderFontsPanel() {
+  panelHeader.textContent = 'Fonts';
+  if (!currentDeck) {
+    panelBody.innerHTML = '<p style="color:#555;font-size:13px;padding:20px">No deck selected.</p>';
+    return;
+  }
+
+  const currentTheme = extractTheme(currentDeck.content) || 'minimal-white';
+  const fonts = PTMLClient.THEME_FONTS[currentTheme] || PTMLClient.THEME_FONTS['minimal-white'];
+
+  let html = '<div style="margin-bottom:16px;padding:12px;background:#1a1a1e;border-radius:8px;border:1px solid rgba(255,255,255,0.06)">';
+  html += '<div style="font-size:10px;color:#555;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px">Current Theme</div>';
+  html += '<div style="font-size:14px;color:#e0e0e6;font-weight:600">' + currentTheme.replace(/-/g, ' ') + '</div>';
+  html += '</div>';
+
+  html += '<div style="display:flex;flex-direction:column;gap:12px">';
+
+  // Display font
+  html += '<div style="padding:10px 12px;background:#1a1a1e;border-radius:8px;border:1px solid rgba(255,255,255,0.06)">';
+  html += '<div style="font-size:10px;color:#555;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px">Display / Headings</div>';
+  html += '<div style="font-size:16px;font-weight:700;color:#e0e0e6">' + fonts.display + '</div>';
+  html += '</div>';
+
+  // Body font
+  html += '<div style="padding:10px 12px;background:#1a1a1e;border-radius:8px;border:1px solid rgba(255,255,255,0.06)">';
+  html += '<div style="font-size:10px;color:#555;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px">Body</div>';
+  html += '<div style="font-size:14px;font-weight:400;color:#ccc">' + fonts.body + '</div>';
+  html += '</div>';
+
+  // Serif font
+  html += '<div style="padding:10px 12px;background:#1a1a1e;border-radius:8px;border:1px solid rgba(255,255,255,0.06)">';
+  html += '<div style="font-size:10px;color:#555;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px">Serif</div>';
+  html += '<div style="font-size:14px;color:#aaa;font-style:italic">' + fonts.serif + '</div>';
+  html += '</div>';
+
+  // Mono font
+  html += '<div style="padding:10px 12px;background:#1a1a1e;border-radius:8px;border:1px solid rgba(255,255,255,0.06)">';
+  html += '<div style="font-size:10px;color:#555;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px">Code / Mono</div>';
+  html += '<div style="font-size:13px;font-family:monospace;color:#a0d0ff">' + fonts.mono + '</div>';
+  html += '</div>';
+
+  html += '</div>';
+
+  html += '<div style="margin-top:16px;padding:12px;background:rgba(59,108,255,0.08);border-radius:8px;border:1px solid rgba(59,108,255,0.15)">';
+  html += '<div style="font-size:11px;color:#888;line-height:1.5">Fonts are paired with each theme. Change the theme to update the font pairing. All fonts are loaded from Google Fonts.</div>';
+  html += '</div>';
 
   panelBody.innerHTML = html;
 }
@@ -487,6 +577,130 @@ function updatePlanBadge() {
   }
 }
 
+// ── Pexels Image Search ───────────────────────────────────────
+function showPexelsModal() {
+  const hasKey = window.PexelsClient && PexelsClient.hasApiKey();
+  const savedKey = hasKey ? PexelsClient.getApiKey() : '';
+
+  modalContent.innerHTML = `
+    <h2>🖼 Search Stock Photos</h2>
+    <p>Royalty-free images from Pexels. Free to use with attribution.</p>
+    ${!hasKey ? `
+    <div style="margin-bottom:16px">
+      <label style="display:block;font-size:12px;color:#888;margin-bottom:4px">Pexels API Key</label>
+      <input id="pexels-key-input" type="text" placeholder="Paste your Pexels API key..." value="${escapeHtml(savedKey)}"
+        style="width:100%;padding:10px 14px;border:1px solid rgba(255,255,255,0.1);border-radius:8px;
+        background:#1a1a1e;color:#e0e0e6;font-size:13px;outline:none">
+      <button onclick="savePexelsKey()" style="margin-top:8px;padding:8px 16px;border:none;border-radius:6px;
+        background:#3b6cff;color:#fff;font-size:12px;font-weight:600;cursor:pointer">Save Key</button>
+      <div style="margin-top:4px;font-size:10px;color:#555">Get a free key at <a href="https://www.pexels.com/api/" target="_blank" style="color:#3b6cff">pexels.com/api</a></div>
+    </div>` : ''}
+    <div style="display:flex;gap:8px;margin-bottom:16px">
+      <input id="pexels-query" type="text" placeholder="Search for photos..." 
+        style="flex:1;padding:10px 14px;border:1px solid rgba(255,255,255,0.1);border-radius:8px;
+        background:#1a1a1e;color:#e0e0e6;font-size:14px;outline:none"
+        onkeydown="if(event.key==='Enter')searchPexels()">
+      <button onclick="searchPexels()" style="padding:10px 20px;border:none;border-radius:8px;
+        background:linear-gradient(135deg,#3b6cff,#7a5cff);color:#fff;font-size:14px;font-weight:600;cursor:pointer">Search</button>
+    </div>
+    <div id="pexels-results" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;max-height:50vh;overflow-y:auto"></div>
+    <div id="pexels-attribution" style="margin-top:12px;font-size:10px;color:#555;text-align:center"></div>
+    <button onclick="closeModal()" style="width:100%;padding:10px;border:none;background:transparent;color:#555;font-size:13px;cursor:pointer;margin-top:8px">Close</button>
+  `;
+  modalOverlay.classList.add('show');
+
+  // Focus search input
+  setTimeout(function() {
+    var q = document.getElementById('pexels-query');
+    if (q) q.focus();
+  }, 100);
+}
+
+function savePexelsKey() {
+  var input = document.getElementById('pexels-key-input');
+  if (!input || !input.value.trim()) {
+    showToast('Please enter an API key', 'error');
+    return;
+  }
+  PexelsClient.setApiKey(input.value.trim());
+  showToast('API key saved!', 'success');
+  showPexelsModal(); // Refresh modal
+}
+
+function searchPexels() {
+  var query = document.getElementById('pexels-query');
+  var results = document.getElementById('pexels-results');
+  var attribution = document.getElementById('pexels-attribution');
+
+  if (!query || !query.value.trim()) {
+    results.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:#555;padding:20px">Enter a search term</div>';
+    return;
+  }
+
+  if (!PexelsClient.hasApiKey()) {
+    results.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:#e0445a;padding:20px">Set your Pexels API key first</div>';
+    return;
+  }
+
+  results.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:#555;padding:20px">Searching...</div>';
+  attribution.textContent = '';
+
+  PexelsClient.search(query.value.trim(), 8).then(function(photos) {
+    _pexelsLastResults = photos;
+    if (photos.length === 0) {
+      results.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:#555;padding:20px">No results found</div>';
+      return;
+    }
+
+    results.innerHTML = photos.map(function(p) {
+      return `<div onclick="insertPexelsImage('${p.id}')" style="cursor:pointer;border-radius:8px;overflow:hidden;
+        border:1px solid rgba(255,255,255,0.06);background:#1a1a1e;transition:transform .15s"
+        onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'">
+        <img src="${p.small}" alt="${escapeHtml(p.alt)}" style="width:100%;height:100px;object-fit:cover;display:block" loading="lazy">
+        <div style="padding:6px 8px;font-size:10px;color:#555;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+          ${escapeHtml(p.photographer)}
+        </div>
+      </div>`;
+    }).join('');
+
+    attribution.textContent = 'Photos provided by Pexels. Free to use with attribution.';
+  }).catch(function(err) {
+    results.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:#e0445a;padding:20px">' + escapeHtml(err.message) + '</div>';
+  });
+}
+
+// Store last search result for insert
+var _pexelsLastResults = null;
+
+function insertPexelsImage(photoId) {
+  // Re-fetch from DOM since we lose reference after render
+  // Instead, store results globally
+  if (!_pexelsLastResults) return;
+  
+  var photo = _pexelsLastResults.find(function(p) { return p.id === photoId; });
+  if (!photo) return;
+
+  var alt = photo.alt || 'Photo';
+  var md = '![' + alt + '](' + photo.large + ')\n*' + photo.attribution + '*';
+
+  // Insert at cursor position in editor
+  var textarea = document.getElementById('editor');
+  if (textarea) {
+    var start = textarea.selectionStart;
+    var end = textarea.selectionEnd;
+    var before = textarea.value.substring(0, start);
+    var after = textarea.value.substring(end);
+    textarea.value = before + md + after;
+    textarea.selectionStart = textarea.selectionEnd = start + md.length;
+    
+    // Trigger input event for preview update
+    textarea.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+
+  closeModal();
+  showToast('Image inserted!', 'success');
+}
+
 // ── Utilities ──────────────────────────────────────────────────
 function countSlides(md) {
   // Count slide separators (--- on its own line, not front matter)
@@ -553,6 +767,10 @@ window.upgradeToPro = upgradeToPro;
 window.closeModal = closeModal;
 window.goToSlide = goToSlide;
 window.switchView = switchView;
+window.showPexelsModal = showPexelsModal;
+window.savePexelsKey = savePexelsKey;
+window.searchPexels = searchPexels;
+window.insertPexelsImage = insertPexelsImage;
 
 // ── Boot ───────────────────────────────────────────────────────
 if (document.readyState !== 'loading') init();

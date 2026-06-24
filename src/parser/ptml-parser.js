@@ -374,7 +374,7 @@
     if (match) {
       var body = match[1];
       body.split('\n').forEach(line => {
-        var m = line.match(/^(\w+):\s*(.+)$/);
+        var m = line.match(/^(\w[\w-]*):\s*(.+)$/);
         if (m) fm[m[1].trim()] = m[2].trim().replace(/^["']|["']$/g, '');
       });
       return { frontMatter: fm, body: text.slice(match[0].length) };
@@ -479,6 +479,17 @@
     var title = fm.title || options.title || 'PTML Presentation';
     var basePath = options.basePath || '.';
 
+    // Build font override CSS from front matter
+    var fontOverrides = '';
+    if (fm['font-display'] || fm['font-body'] || fm['font-serif'] || fm['font-mono']) {
+      fontOverrides = '  <style>\n    :root {\n';
+      if (fm['font-display']) fontOverrides += '      --font-display: ' + fm['font-display'] + ';\n';
+      if (fm['font-body']) fontOverrides += '      --font-sans: ' + fm['font-body'] + ';\n';
+      if (fm['font-serif']) fontOverrides += '      --font-serif: ' + fm['font-serif'] + ';\n';
+      if (fm['font-mono']) fontOverrides += '      --font-mono: ' + fm['font-mono'] + ';\n';
+      fontOverrides += '    }\n  </style>';
+    }
+
     return [
       '<!DOCTYPE html>',
       '<html lang="en" data-theme="' + theme + '">',
@@ -490,6 +501,7 @@
       '  <link rel="stylesheet" href="' + basePath + '/base.css">',
       '  <link rel="stylesheet" id="theme-link" href="' + basePath + '/themes/' + theme + '.css">',
       '  <link rel="stylesheet" href="' + basePath + '/animations/animations.css">',
+      fontOverrides,
       '</head>',
       '<body data-themes="' + (fm.themeList || '') + '" data-theme-base="' + basePath + '/themes/">',
       '<div class="deck">',

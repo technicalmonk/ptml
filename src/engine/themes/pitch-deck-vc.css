@@ -10,8 +10,10 @@
   --radius:14px;--radius-sm:8px;--radius-lg:22px;
   --shadow:0 2px 8px rgba(20,30,50,.06),0 12px 32px rgba(20,30,50,.06);
   --shadow-lg:0 8px 24px rgba(20,30,50,.1),0 30px 80px rgba(20,30,50,.1);
-  --font-sans:'Inter','Noto Sans SC',sans-serif;
   --font-display:'Inter','Noto Sans SC',sans-serif;
+  --font-sans:'Inter','Noto Sans SC',sans-serif;
+  --font-serif:'Playfair Display','Noto Serif SC',Georgia,serif;
+  --font-mono:'JetBrains Mono','IBM Plex Mono',monospace;
 }
 .slide{padding:88px 120px}
 h1.title,.h1{font-weight:800;letter-spacing:-.035em}

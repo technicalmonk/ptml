@@ -12,5 +12,7 @@
   --shadow-lg:0 24px 60px rgba(255,39,66,.14);
   --font-sans:'Noto Sans SC','Inter',sans-serif;
   --font-display:'Noto Serif SC','Playfair Display',serif;
+  --font-serif:'Noto Serif SC','Playfair Display',serif;
+  --font-mono:'JetBrains Mono','IBM Plex Mono',monospace;
   --letter-tight:-.02em;
 }

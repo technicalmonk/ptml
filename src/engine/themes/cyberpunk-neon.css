@@ -12,6 +12,8 @@
   --shadow-lg:0 0 0 1px rgba(0,240,255,.5),0 0 40px rgba(0,240,255,.45),0 0 80px rgba(255,43,214,.3);
   --font-sans:'Inter','Noto Sans SC',sans-serif;
   --font-display:'JetBrains Mono','IBM Plex Mono',monospace;
+  --font-serif:'Playfair Display','Noto Serif SC',Georgia,serif;
+  --font-mono:'JetBrains Mono','IBM Plex Mono',monospace;
 }
 body{background:
   radial-gradient(ellipse at 15% 0%,rgba(255,43,214,.22),transparent 60%),

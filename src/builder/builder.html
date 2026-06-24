@@ -145,6 +145,7 @@ html, body { margin:0; padding:0; height:100vh; overflow:hidden;
     <div class="brand">P</div>
     <button id="nav-decks" class="active" title="Decks">📁</button>
     <button id="nav-theme" title="Themes">🎨</button>
+    <button id="nav-fonts" title="Fonts">🔤</button>
     <button id="nav-analytics" title="Analytics">📊</button>
     <button id="nav-export" title="Export">⬇</button>
     <div class="spacer"></div>
@@ -179,6 +180,8 @@ html, body { margin:0; padding:0; height:100vh; overflow:hidden;
       <button onclick="PTMLToolbar.action('code')" title="Inline code">&lt;/&gt;</button>
       <button onclick="PTMLToolbar.action('blockquote')" title="Blockquote">❝</button>
       <button onclick="PTMLToolbar.action('link')" title="Link">🔗</button>
+      <span class="sep"></span>
+      <button onclick="showPexelsModal()" title="Search stock photos (Pexels)">🖼</button>
       <span class="sep"></span>
       <button onclick="PTMLToolbar.toggleMode()" class="mode-toggle" id="mode-toggle" title="Toggle Markdown / Rich Text">M↓</button>
     </div>

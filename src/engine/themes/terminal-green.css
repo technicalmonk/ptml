@@ -12,6 +12,8 @@
   --shadow-lg:0 0 60px rgba(0,255,136,.28);
   --font-sans:'JetBrains Mono','IBM Plex Mono',monospace;
   --font-display:'JetBrains Mono',monospace;
+  --font-serif:'Playfair Display','Noto Serif SC',Georgia,serif;
+  --font-mono:'JetBrains Mono','IBM Plex Mono',monospace;
   --letter-tight:-.01em;
 }
 body{text-shadow:0 0 2px rgba(0,255,136,.5)}

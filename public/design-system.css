@@ -1,0 +1,158 @@
+/* PTML Design System — Clean, professional, modern
+ * Monochrome + single blue accent. No gradients, no purple.
+ * Inspired by: Linear, Stripe, Apple, Notion
+ */
+
+:root {
+  /* ── Core palette ─────────────────────────────────────────── */
+  --c-bg:          #f8f9fa;
+  --c-surface:     #ffffff;
+  --c-surface-hov: #f1f3f5;
+  --c-border:      #e5e7eb;
+  --c-border-hov:  #d1d5db;
+  --c-text:        #111827;
+  --c-text-2:      #4b5563;
+  --c-text-3:      #9ca3af;
+  --c-accent:      #0066ff;
+  --c-accent-hov:  #0052cc;
+  --c-accent-subtle: #eef4ff;
+  --c-red:         #dc2626;
+  --c-green:       #16a34a;
+  --c-amber:       #d97706;
+
+  /* ── Typography ───────────────────────────────────────────── */
+  --font: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Helvetica, Arial, sans-serif;
+  --font-mono: 'SF Mono', 'JetBrains Mono', SFMono-Regular, Menlo, monospace;
+
+  /* ── Spacing ───────────────────────────────────────────────── */
+  --radius-sm: 6px;
+  --radius:    8px;
+  --radius-lg: 12px;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow:    0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-lg: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
+
+  /* ── Transitions ───────────────────────────────────────────── */
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ── Reset ────────────────────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{
+  font-family:var(--font);
+  background:var(--c-bg);
+  color:var(--c-text);
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+}
+a{color:var(--c-accent);text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* ── Buttons ──────────────────────────────────────────────────── */
+.btn{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:8px 16px;border-radius:var(--radius);
+  font-family:var(--font);font-size:14px;font-weight:500;
+  cursor:pointer;border:none;transition:all .15s var(--ease);
+  white-space:nowrap;line-height:1.4;
+}
+.btn-primary{background:var(--c-accent);color:#fff}
+.btn-primary:hover{background:var(--c-accent-hov)}
+.btn-secondary{background:var(--c-surface);color:var(--c-text);border:1px solid var(--c-border)}
+.btn-secondary:hover{background:var(--c-surface-hov);border-color:var(--c-border-hov)}
+.btn-ghost{background:transparent;color:var(--c-text-2);border:1px solid transparent}
+.btn-ghost:hover{background:var(--c-surface-hov);color:var(--c-text)}
+.btn-danger{background:var(--c-red);color:#fff}
+.btn-danger:hover{background:#b91c1c}
+.btn-sm{padding:5px 10px;font-size:12px;border-radius:var(--radius-sm)}
+.btn-lg{padding:12px 24px;font-size:16px;border-radius:var(--radius-lg)}
+
+/* ── Inputs ───────────────────────────────────────────────────── */
+.input{
+  padding:8px 12px;border:1px solid var(--c-border);
+  border-radius:var(--radius);background:var(--c-surface);
+  color:var(--c-text);font-family:var(--font);font-size:14px;
+  outline:none;transition:border-color .15s var(--ease);
+  width:100%;
+}
+.input:focus{border-color:var(--c-accent);box-shadow:0 0 0 3px var(--c-accent-subtle)}
+.input::placeholder{color:var(--c-text-3)}
+label{display:block;font-size:13px;font-weight:500;color:var(--c-text-2);margin-bottom:4px}
+
+/* ── Cards ────────────────────────────────────────────────────── */
+.card{
+  background:var(--c-surface);border:1px solid var(--c-border);
+  border-radius:var(--radius-lg);padding:20px;
+  box-shadow:var(--shadow-sm);transition:all .15s var(--ease);
+}
+.card:hover{border-color:var(--c-border-hov);box-shadow:var(--shadow)}
+
+/* ── Layout ───────────────────────────────────────────────────── */
+.page{max-width:1200px;margin:0 auto;padding:32px 24px}
+.page-header{margin-bottom:32px}
+.page-header h1{font-size:28px;font-weight:700;letter-spacing:-0.02em}
+.page-header p{color:var(--c-text-2);font-size:15px;margin-top:4px}
+
+/* ── Grid ─────────────────────────────────────────────────────── */
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+@media(max-width:900px){.grid-3,.grid-4{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr}}
+
+/* ── Badges ───────────────────────────────────────────────────── */
+.badge{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:2px 10px;border-radius:100px;
+  font-size:12px;font-weight:500;
+}
+.badge-free{background:#f0fdf4;color:var(--c-green)}
+.badge-pro{background:var(--c-accent-subtle);color:var(--c-accent)}
+
+/* ── Modal ────────────────────────────────────────────────────── */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:100;
+  display:none;align-items:center;justify-content:center;
+}
+.modal-overlay.show{display:flex}
+.modal{
+  background:var(--c-surface);border:1px solid var(--c-border);
+  border-radius:var(--radius-lg);padding:32px;max-width:560px;
+  width:90%;max-height:85vh;overflow-y:auto;box-shadow:var(--shadow-lg);
+}
+
+/* ── Toast ────────────────────────────────────────────────────── */
+.toast{
+  position:fixed;bottom:24px;right:24px;z-index:200;
+  background:var(--c-text);color:var(--c-surface);
+  border-radius:var(--radius);padding:12px 20px;
+  font-size:14px;font-weight:500;
+  transform:translateY(100px);opacity:0;transition:all .3s var(--ease);
+  box-shadow:var(--shadow-lg);
+}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.success{border-left:3px solid var(--c-green)}
+.toast.error{border-left:3px solid var(--c-red)}
+
+/* ── Utility ──────────────────────────────────────────────────── */
+.text-center{text-align:center}
+.text-sm{font-size:13px}
+.text-xs{font-size:11px}
+.text-muted{color:var(--c-text-3)}
+.text-secondary{color:var(--c-text-2)}
+.mt-1{margin-top:8px}
+.mt-2{margin-top:16px}
+.mt-3{margin-top:24px}
+.mt-4{margin-top:32px}
+.mb-2{margin-bottom:16px}
+.mb-3{margin-bottom:24px}
+.gap-2{gap:12px}
+.gap-3{gap:16px}
+.flex{display:flex}
+.flex-col{flex-direction:column}
+.items-center{align-items:center}
+.justify-between{justify-content:space-between}
+.justify-center{justify-content:center}
+.flex-1{flex:1}
+.w-full{width:100%}

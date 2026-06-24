@@ -11,6 +11,8 @@
   --shadow:none;--shadow-lg:0 16px 40px rgba(0,0,0,.3);
   --font-sans:'JetBrains Mono','IBM Plex Mono',monospace;
   --font-display:'JetBrains Mono',monospace;
+  --font-serif:'Playfair Display','Noto Serif SC',Georgia,serif;
+  --font-mono:'JetBrains Mono','IBM Plex Mono',monospace;
 }
 body{background:
   linear-gradient(rgba(255,255,255,.06) 1px,transparent 1px) 0 0/40px 40px,

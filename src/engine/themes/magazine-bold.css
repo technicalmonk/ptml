@@ -10,9 +10,10 @@
   --radius:0px;--radius-sm:0px;--radius-lg:2px;
   --shadow:none;
   --shadow-lg:6px 6px 0 var(--accent);
-  --font-sans:'Inter','Noto Sans SC',sans-serif;
+  --font-display:'Oswald','Noto Sans SC',sans-serif;
+  --font-sans:'Roboto','Noto Sans SC',sans-serif;
   --font-serif:'Playfair Display','Noto Serif SC',Georgia,serif;
-  --font-display:'Playfair Display','Noto Serif SC',Georgia,serif;
+  --font-mono:'JetBrains Mono','IBM Plex Mono',monospace;
 }
 h1.title,.h1{font-size:120px;line-height:.92;font-weight:900;letter-spacing:-.04em;font-family:var(--font-serif)}
 h2.title,.h2{font-size:72px;font-weight:800;font-family:var(--font-serif)}

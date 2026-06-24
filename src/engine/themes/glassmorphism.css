@@ -10,7 +10,10 @@
   --radius:22px;--radius-sm:14px;--radius-lg:30px;
   --shadow:0 20px 60px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.12);
   --shadow-lg:0 30px 80px rgba(0,0,0,.5);
+  --font-display:'Poppins','Noto Sans SC',sans-serif;
   --font-sans:'Inter','Noto Sans SC',sans-serif;
+  --font-serif:'Playfair Display','Noto Serif SC',Georgia,serif;
+  --font-mono:'JetBrains Mono','IBM Plex Mono',monospace;
 }
 body{background:
   radial-gradient(60% 60% at 20% 20%,rgba(125,211,252,.3),transparent 60%),

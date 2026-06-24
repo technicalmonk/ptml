@@ -9,8 +9,10 @@
   --grad-soft:linear-gradient(135deg,#f4f4f4,#fff);
   --radius:0;--radius-sm:0;--radius-lg:0;
   --shadow:none;--shadow-lg:none;
-  --font-sans:'Inter','Helvetica Neue',Helvetica,'Noto Sans SC',sans-serif;
-  --font-display:'Inter','Helvetica Neue',Helvetica,sans-serif;
+  --font-display:'Inter','Helvetica Neue','Noto Sans SC',sans-serif;
+  --font-sans:'Inter','Helvetica Neue','Noto Sans SC',sans-serif;
+  --font-serif:'Playfair Display','Noto Serif SC',Georgia,serif;
+  --font-mono:'JetBrains Mono','IBM Plex Mono',monospace;
   --letter-tight:-.04em;
 }
 .card{border-top:2px solid #111;border-bottom:1px solid #111;border-left:none;border-right:none;box-shadow:none;background:#fff}

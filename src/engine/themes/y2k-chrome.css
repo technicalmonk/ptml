@@ -11,6 +11,8 @@
   --shadow-lg:0 24px 60px rgba(70,90,130,.35),inset 0 2px 0 rgba(255,255,255,.95);
   --font-sans:'Space Grotesk','Inter','Noto Sans SC',sans-serif;
   --font-display:'Space Grotesk','Inter',sans-serif;
+  --font-serif:'Playfair Display','Noto Serif SC',Georgia,serif;
+  --font-mono:'JetBrains Mono','IBM Plex Mono',monospace;
 }
 body{background:
   linear-gradient(135deg,#c4cfe0 0%,#f0f3f8 25%,#aab8d0 50%,#f5f7fb 75%,#b8c4d8 100%)}

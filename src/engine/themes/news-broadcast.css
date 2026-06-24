@@ -12,6 +12,8 @@
   --shadow-lg:0 4px 0 var(--accent);
   --font-sans:'Oswald','Inter','Noto Sans SC',sans-serif;
   --font-display:'Oswald','Inter','Noto Sans SC',sans-serif;
+  --font-serif:'Playfair Display','Noto Serif SC',Georgia,serif;
+  --font-mono:'JetBrains Mono','IBM Plex Mono',monospace;
 }
 h1.title,h2.title,.h1,.h2{font-weight:700;text-transform:uppercase;letter-spacing:-.01em}
 .card{border:2px solid var(--text-1);box-shadow:6px 6px 0 var(--accent)}

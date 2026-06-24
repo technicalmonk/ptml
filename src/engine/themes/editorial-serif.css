@@ -13,6 +13,7 @@
   --font-sans:'Playfair Display','Noto Serif SC',serif;
   --font-display:'Playfair Display','Noto Serif SC',serif;
   --font-serif:'Playfair Display','Noto Serif SC',serif;
+  --font-mono:'JetBrains Mono','IBM Plex Mono',monospace;
   --letter-tight:-.02em;
 }
 .h1,.h2,h1.title,h2.title{font-style:italic;font-weight:600}

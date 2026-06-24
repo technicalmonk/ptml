@@ -11,6 +11,8 @@
   --shadow:4px 4px 0 #000;--shadow-lg:8px 8px 0 #000;
   --font-sans:'Archivo Black','Inter','Noto Sans SC',sans-serif;
   --font-display:'Archivo Black',sans-serif;
+  --font-serif:'Playfair Display','Noto Serif SC',Georgia,serif;
+  --font-mono:'JetBrains Mono','IBM Plex Mono',monospace;
   --letter-tight:-.04em;
 }
 .h1,.h2,h1.title,h2.title{text-transform:uppercase}

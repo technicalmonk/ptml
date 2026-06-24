@@ -12,6 +12,8 @@
   --shadow-lg:0 10px 0 rgba(80,40,0,.15),0 24px 50px rgba(80,40,0,.2);
   --font-sans:'Inter','Noto Sans SC',sans-serif;
   --font-display:'Playfair Display','Noto Serif SC',serif;
+  --font-serif:'Playfair Display','Noto Serif SC',Georgia,serif;
+  --font-mono:'JetBrains Mono','IBM Plex Mono',monospace;
 }
 body{background:
   repeating-linear-gradient(0deg,rgba(80,40,0,.06) 0 2px,transparent 2px 4px),

@@ -17,7 +17,49 @@
     'cyberpunk-neon', 'y2k-chrome', 'retro-tv', 'japanese-minimal',
     'vaporwave', 'midcentury', 'corporate-clean', 'academic-paper',
     'news-broadcast', 'pitch-deck-vc', 'magazine-bold', 'engineering-whiteprint',
+    'xiaohongshu-white',
   ];
+
+  // Font pairing metadata for each theme
+  // { display, body, serif, mono }
+  const THEME_FONTS = {
+    'minimal-white':          { display: 'Inter', body: 'Inter', serif: 'Playfair Display', mono: 'JetBrains Mono' },
+    'editorial-serif':        { display: 'Playfair Display', body: 'Lora', serif: 'Playfair Display', mono: 'JetBrains Mono' },
+    'soft-pastel':            { display: 'Nunito', body: 'Nunito Sans', serif: 'Playfair Display', mono: 'JetBrains Mono' },
+    'sharp-mono':             { display: 'Space Grotesk', body: 'DM Sans', serif: 'Playfair Display', mono: 'JetBrains Mono' },
+    'arctic-cool':            { display: 'Montserrat', body: 'Open Sans', serif: 'Playfair Display', mono: 'JetBrains Mono' },
+    'sunset-warm':            { display: 'DM Serif Display', body: 'Source Sans 3', serif: 'DM Serif Display', mono: 'JetBrains Mono' },
+    'catppuccin-latte':       { display: 'Inter', body: 'Inter', serif: 'Playfair Display', mono: 'JetBrains Mono' },
+    'catppuccin-mocha':       { display: 'Inter', body: 'Inter', serif: 'Playfair Display', mono: 'JetBrains Mono' },
+    'dracula':                { display: 'Fira Sans', body: 'Fira Sans', serif: 'Playfair Display', mono: 'Fira Code' },
+    'tokyo-night':            { display: 'Outfit', body: 'Inter', serif: 'Playfair Display', mono: 'JetBrains Mono' },
+    'nord':                   { display: 'Rubik', body: 'Inter', serif: 'Playfair Display', mono: 'JetBrains Mono' },
+    'solarized-light':        { display: 'Merriweather', body: 'Source Sans 3', serif: 'Merriweather', mono: 'JetBrains Mono' },
+    'gruvbox-dark':           { display: 'Atkinson Hyperlegible', body: 'Atkinson Hyperlegible', serif: 'Playfair Display', mono: 'Fira Code' },
+    'rose-pine':              { display: 'Inter', body: 'Inter', serif: 'Playfair Display', mono: 'JetBrains Mono' },
+    'neo-brutalism':          { display: 'Archivo Black', body: 'Space Grotesk', serif: 'Playfair Display', mono: 'JetBrains Mono' },
+    'glassmorphism':          { display: 'Poppins', body: 'Inter', serif: 'Playfair Display', mono: 'JetBrains Mono' },
+    'bauhaus':                { display: 'Barlow Condensed', body: 'Barlow', serif: 'Playfair Display', mono: 'JetBrains Mono' },
+    'swiss-grid':             { display: 'Inter', body: 'Inter', serif: 'Playfair Display', mono: 'JetBrains Mono' },
+    'terminal-green':         { display: 'IBM Plex Mono', body: 'IBM Plex Sans', serif: 'Playfair Display', mono: 'IBM Plex Mono' },
+    'rainbow-gradient':       { display: 'Fredoka', body: 'Nunito', serif: 'Playfair Display', mono: 'JetBrains Mono' },
+    'aurora':                 { display: 'Outfit', body: 'Inter', serif: 'Playfair Display', mono: 'JetBrains Mono' },
+    'blueprint':              { display: 'Roboto Mono', body: 'Roboto', serif: 'Playfair Display', mono: 'Roboto Mono' },
+    'memphis-pop':            { display: 'Bangers', body: 'Open Sans', serif: 'Playfair Display', mono: 'JetBrains Mono' },
+    'cyberpunk-neon':         { display: 'Orbitron', body: 'Rajdhani', serif: 'Playfair Display', mono: 'JetBrains Mono' },
+    'y2k-chrome':             { display: 'Space Grotesk', body: 'Inter', serif: 'Playfair Display', mono: 'Space Mono' },
+    'retro-tv':               { display: 'Playfair Display', body: 'Inter', serif: 'Playfair Display', mono: 'JetBrains Mono' },
+    'japanese-minimal':       { display: 'Noto Serif JP', body: 'Noto Sans JP', serif: 'Noto Serif JP', mono: 'JetBrains Mono' },
+    'vaporwave':              { display: 'Raleway', body: 'Inter', serif: 'Playfair Display', mono: 'JetBrains Mono' },
+    'midcentury':             { display: 'Cormorant Garamond', body: 'Josefin Sans', serif: 'Cormorant Garamond', mono: 'JetBrains Mono' },
+    'corporate-clean':        { display: 'Inter', body: 'Inter', serif: 'Playfair Display', mono: 'JetBrains Mono' },
+    'academic-paper':         { display: 'Crimson Text', body: 'IBM Plex Sans', serif: 'Crimson Text', mono: 'JetBrains Mono' },
+    'news-broadcast':         { display: 'Libre Baskerville', body: 'Source Sans 3', serif: 'Libre Baskerville', mono: 'JetBrains Mono' },
+    'pitch-deck-vc':          { display: 'Inter', body: 'Inter', serif: 'Playfair Display', mono: 'JetBrains Mono' },
+    'magazine-bold':          { display: 'Oswald', body: 'Roboto', serif: 'Playfair Display', mono: 'JetBrains Mono' },
+    'engineering-whiteprint': { display: 'IBM Plex Mono', body: 'IBM Plex Sans', serif: 'Playfair Display', mono: 'IBM Plex Mono' },
+    'xiaohongshu-white':      { display: 'Noto Serif SC', body: 'Noto Sans SC', serif: 'Noto Serif SC', mono: 'JetBrains Mono' },
+  };
 
   // ── User / Plan ──────────────────────────────────────────────
   function getUser() {
@@ -195,6 +237,7 @@
     exportHTML,
     // Constants
     ALL_THEMES,
+    THEME_FONTS,
   };
 
 })();

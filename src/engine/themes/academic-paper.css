@@ -10,9 +10,10 @@
   --radius:0px;--radius-sm:0px;--radius-lg:0px;
   --shadow:none;
   --shadow-lg:0 1px 2px rgba(0,0,0,.1);
-  --font-sans:'Latin Modern Roman','Playfair Display','Noto Serif SC',Georgia,serif;
-  --font-serif:'Latin Modern Roman','Playfair Display','Noto Serif SC',Georgia,serif;
-  --font-display:'Latin Modern Roman','Playfair Display','Noto Serif SC',Georgia,serif;
+  --font-display:'Crimson Text','Noto Serif SC',serif;
+  --font-sans:'IBM Plex Sans','Noto Sans SC',sans-serif;
+  --font-serif:'Crimson Text','Noto Serif SC',serif;
+  --font-mono:'JetBrains Mono','IBM Plex Mono',monospace;
 }
 body{font-family:var(--font-serif)}
 h1.title,h2.title,.h1,.h2{font-weight:700;font-family:var(--font-serif)}

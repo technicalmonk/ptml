@@ -4,6 +4,8 @@
     '../engine/runtime.js',
     '../parser/ptml-parser.js',
     '../client/ptml-client.js',
+    '../client/ptml-fonts.js',
+    '../client/pexels.js',
     'toolbar.js',
     'template-chooser.js',
     'builder.js'

@@ -13,6 +13,8 @@
   --font-sans:'Inter','Noto Sans SC',sans-serif;
   --font-mono:'JetBrains Mono','IBM Plex Mono',monospace;
   --font-display:'JetBrains Mono','Inter',monospace;
+  --font-serif:'Playfair Display','Noto Serif SC',Georgia,serif;
+  --font-mono:'JetBrains Mono','IBM Plex Mono',monospace;
 }
 body{background:
   repeating-linear-gradient(0deg,rgba(10,30,70,.07) 0 1px,transparent 1px 40px),

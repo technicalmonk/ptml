@@ -10,5 +10,8 @@
   --radius:14px;--radius-sm:10px;--radius-lg:22px;
   --shadow:0 10px 28px rgba(40,70,110,.12);
   --shadow-lg:0 24px 60px rgba(40,70,110,.18);
-  --font-sans:'Inter','Noto Sans SC',sans-serif;
+  --font-display:'Montserrat','Noto Sans SC',sans-serif;
+  --font-sans:'Open Sans','Noto Sans SC',sans-serif;
+  --font-serif:'Playfair Display','Noto Serif SC',Georgia,serif;
+  --font-mono:'JetBrains Mono','IBM Plex Mono',monospace;
 }

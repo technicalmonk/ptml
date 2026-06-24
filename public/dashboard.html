@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — PTML</title>
+<link rel="stylesheet" href="design-system.css">
+<style>
+.nav { background:var(--c-surface); border-bottom:1px solid var(--c-border);
+  padding:0 24px; height:56px; display:flex; align-items:center; justify-content:space-between; }
+.nav-logo { font-size:18px; font-weight:800; letter-spacing:-0.02em; }
+.nav-right { display:flex; align-items:center; gap:16px; }
+.nav-right .user-name { font-size:14px; color:var(--c-text-2); }
+.preso-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:16px; }
+.preso-card { background:var(--c-surface); border:1px solid var(--c-border);
+  border-radius:var(--radius-lg); overflow:hidden; cursor:pointer;
+  transition:all .15s var(--ease); box-shadow:var(--shadow-sm); }
+.preso-card:hover { border-color:var(--c-border-hov); box-shadow:var(--shadow); }
+.preso-thumb { height:160px; background:var(--c-surface-hov);
+  display:flex; align-items:center; justify-content:center;
+  font-size:40px; color:var(--c-text-3); position:relative; }
+.preso-thumb .slide-count { position:absolute; bottom:8px; right:8px;
+  background:var(--c-surface); border:1px solid var(--c-border);
+  padding:2px 8px; border-radius:100px; font-size:11px; color:var(--c-text-2); }
+.preso-body { padding:16px; }
+.preso-body h3 { font-size:15px; font-weight:600; margin-bottom:4px;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.preso-body p { font-size:12px; color:var(--c-text-3); }
+.preso-actions { display:flex; gap:4px; border-top:1px solid var(--c-border); padding:12px 16px; }
+.preso-actions button { font-size:11px; }
+.section-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; }
+.section-header h2 { font-size:18px; font-weight:600; }
+.empty-state { text-align:center; padding:60px 20px; color:var(--c-text-3); }
+.empty-state .empty-icon { font-size:48px; margin-bottom:16px; }
+.empty-state h3 { font-size:16px; font-weight:500; margin-bottom:8px; color:var(--c-text-2); }
+.empty-state p { font-size:13px; margin-bottom:24px; }
+.divider { border:none; border-top:1px solid var(--c-border); margin:32px 0; }
+.actions-bar { display:flex; gap:8px; margin-bottom:24px; }
+.dropdown { position:relative; display:inline-block; }
+.dropdown-menu { position:absolute; top:100%; left:0; margin-top:4px;
+  background:var(--c-surface); border:1px solid var(--c-border);
+  border-radius:var(--radius); padding:4px; min-width:200px;
+  box-shadow:var(--shadow-lg); display:none; z-index:50; }
+.dropdown-menu.show { display:block; }
+.dropdown-item { display:block; width:100%; padding:8px 12px; border:none;
+  background:transparent; text-align:left; font-size:13px; color:var(--c-text);
+  border-radius:var(--radius-sm); cursor:pointer; }
+.dropdown-item:hover { background:var(--c-surface-hov); }
+.dropdown-item .sub { color:var(--c-text-3); font-size:11px; display:block; }
+.inspiration-tag { display:inline-block; padding:1px 6px; border-radius:4px;
+  background:var(--c-accent-subtle); color:var(--c-accent); font-size:10px;
+  font-weight:500; margin-left:6px; }
+</style>
+</head>
+<body>
+<div class="nav">
+  <div class="nav-logo">PTML</div>
+  <div class="nav-right">
+    <span class="badge badge-free" id="plan-badge">Free</span>
+    <span class="user-name" id="user-name">User</span>
+    <button class="btn btn-ghost btn-sm" onclick="logout()">Sign out</button>
+  </div>
+</div>
+
+<div class="page">
+  <div class="page-header">
+    <h1>Presentations</h1>
+    <p>Create, edit, and share HTML presentations</p>
+  </div>
+
+  <div class="actions-bar">
+    <button class="btn btn-primary" onclick="newPresentation()">+ New Presentation</button>
+    <div class="dropdown" id="clone-dropdown">
+      <button class="btn btn-secondary" onclick="toggleCloneMenu()">Create from Existing ▾</button>
+      <div class="dropdown-menu" id="clone-menu"></div>
+    </div>
+  </div>
+
+  <div id="my-decks-section">
+    <div class="section-header">
+      <h2>My Presentations</h2>
+    </div>
+    <div id="my-decks" class="preso-grid"></div>
+  </div>
+
+  <hr class="divider">
+
+  <div class="section-header">
+    <h2>Inspiration</h2>
+  </div>
+  <div id="inspiration-grid" class="preso-grid"></div>
+</div>
+
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal" id="modal-content"></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="../src/client/ptml-client.js"></script>
+<script src="../src/builder/template-chooser.js"></script>
+<script>
+// Auth check
+var user = PTMLClient.getUser();
+if (!user) { window.location.href = 'login.html'; }
+
+document.getElementById('user-name').textContent = user.name || 'User';
+document.getElementById('plan-badge').textContent = (user.plan || 'free').toUpperCase();
+if (user.plan === 'pro') {
+  document.getElementById('plan-badge').className = 'badge badge-pro';
+}
+
+// Inspiration decks (examples baked in)
+var inspirations = [
+  { id:'insp-ptml', title:'PTML Overview', desc:'5 slides introducing PTML', slides:5, icon:'📊' },
+  { id:'insp-code', title:'Code Showcase', desc:'Developer-focused with code blocks', slides:4, icon:'💻' },
+  { id:'insp-min', title:'Minimal Deck', desc:'Clean, no directives, auto-layout', slides:4, icon:'📄' },
+  { id:'insp-pitch', title:'Pitch Deck', desc:'Startup pitch template', slides:6, icon:'🚀' },
+  { id:'insp-tech', title:'Tech Talk', desc:'Engineering presentation', slides:6, icon:'🔧' },
+  { id:'insp-weekly', title:'Weekly Report', desc:'Status update template', slides:5, icon:'📈' },
+];
+
+function renderMyDecks() {
+  var decks = PTMLClient.getDecks();
+  var container = document.getElementById('my-decks');
+  if (decks.length === 0) {
+    container.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">📄</div><h3>No presentations yet</h3><p>Create your first presentation to get started.</p><button class="btn btn-primary" onclick="newPresentation()">+ New Presentation</button></div>';
+    document.getElementById('my-decks-section').querySelector('.section-header').style.display = 'none';
+  } else {
+    document.getElementById('my-decks-section').querySelector('.section-header').style.display = '';
+    container.innerHTML = decks.map(function(d) {
+      var slideCount = (d.content.match(/\n---\n/g) || []).length + 1;
+      var date = d.updatedAt ? new Date(d.updatedAt).toLocaleDateString() : '';
+      return '<div class="preso-card" onclick="openDeck(\'' + d.id + '\')">' +
+        '<div class="preso-thumb"><span>' + (d.content.match(/^#\s+(.+)/m) ? '📊' : '📄') + '</span>' +
+        '<span class="slide-count">' + slideCount + ' slides</span></div>' +
+        '<div class="preso-body"><h3>' + escapeHtml(d.title || 'Untitled') + '</h3><p>Updated ' + date + '</p></div>' +
+        '<div class="preso-actions">' +
+        '<button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();renameDeck(\'' + d.id + '\')">Rename</button>' +
+        '<button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();duplicateDeck(\'' + d.id + '\')">Duplicate</button>' +
+        '<button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();deleteDeckPrompt(\'' + d.id + '\')" style="color:var(--c-red)">Delete</button>' +
+        '</div></div>';
+    }).join('');
+  }
+  renderCloneMenu();
+}
+
+function renderInspirations() {
+  var container = document.getElementById('inspiration-grid');
+  container.innerHTML = inspirations.map(function(d) {
+    return '<div class="preso-card" onclick="openInspiration(\'' + d.id + '\')">' +
+      '<div class="preso-thumb"><span>' + d.icon + '</span>' +
+      '<span class="slide-count">' + d.slides + ' slides</span></div>' +
+      '<div class="preso-body"><h3>' + d.title + ' <span class="inspiration-tag">example</span></h3>' +
+      '<p>' + d.desc + '</p></div>' +
+      '<div class="preso-actions">' +
+      '<button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();cloneFromExisting(\'' + d.id + '\')">Use this template</button>' +
+      '</div></div>';
+  }).join('');
+}
+
+function renderCloneMenu() {
+  var menu = document.getElementById('clone-menu');
+  var decks = PTMLClient.getDecks();
+  var html = '';
+  if (decks.length > 0) {
+    html += '<div style="padding:4px 8px;font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:var(--c-text-3)">Your Presentations</div>';
+    decks.forEach(function(d) {
+      html += '<button class="dropdown-item" onclick="cloneDeck(\'' + d.id + '\')">' + escapeHtml(d.title || 'Untitled') + '<span class="sub">Duplicate</span></button>';
+    });
+  }
+  html += '<div style="padding:4px 8px;font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:var(--c-text-3)">Inspiration</div>';
+  inspirations.forEach(function(d) {
+    html += '<button class="dropdown-item" onclick="cloneFromExisting(\'' + d.id + '\')">' + d.title + ' <span class="inspiration-tag">example</span><span class="sub">' + d.desc + '</span></button>';
+  });
+  menu.innerHTML = html;
+}
+
+function toggleCloneMenu() {
+  var menu = document.getElementById('clone-menu');
+  menu.classList.toggle('show');
+}
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('#clone-dropdown')) {
+    document.getElementById('clone-menu').classList.remove('show');
+  }
+});
+
+function newPresentation() {
+  localStorage.setItem('ptml:new-deck', 'template-chooser');
+  window.location.href = '../src/builder/builder.html';
+}
+
+function openDeck(id) {
+  localStorage.setItem('ptml:open-deck', id);
+  window.location.href = '../src/builder/builder.html';
+}
+
+function openInspiration(id) {
+  localStorage.setItem('ptml:open-inspiration', id);
+  window.location.href = '../src/builder/builder.html';
+}
+
+function cloneDeck(id) {
+  var original = PTMLClient.getDeck(id);
+  if (!original) return;
+  var clone = {
+    id: PTMLClient.generateId(),
+    title: (original.title || 'Untitled') + ' (copy)',
+    content: original.content,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+  PTMLClient.saveDeck(clone);
+  localStorage.setItem('ptml:open-deck', clone.id);
+  window.location.href = '../src/builder/builder.html';
+}
+
+function cloneFromExisting(id) {
+  localStorage.setItem('ptml:open-inspiration', id);
+  window.location.href = '../src/builder/builder.html';
+}
+
+function renameDeck(id) {
+  var deck = PTMLClient.getDeck(id);
+  if (!deck) return;
+  var name = prompt('Rename presentation:', deck.title || 'Untitled');
+  if (name && name.trim()) {
+    deck.title = name.trim();
+    PTMLClient.saveDeck(deck);
+    renderMyDecks();
+    showToast('Renamed to ' + deck.title);
+  }
+}
+
+function duplicateDeck(id) {
+  cloneDeck(id);
+}
+
+function deleteDeckPrompt(id) {
+  var deck = PTMLClient.getDeck(id);
+  if (!deck) return;
+  if (confirm('Delete "' + (deck.title || 'Untitled') + '"?')) {
+    PTMLClient.deleteDeck(id);
+    renderMyDecks();
+    showToast('Deleted');
+  }
+}
+
+function logout() {
+  PTMLClient.setUser(null);
+  window.location.href = 'login.html';
+}
+
+function escapeHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function showToast(msg) {
+  var el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast show success';
+  setTimeout(function() { el.className = 'toast'; }, 3000);
+}
+
+// Init
+renderMyDecks();
+renderInspirations();
+</script>
+</body>
+</html>

@@ -12,6 +12,8 @@
   --shadow-lg:6px 6px 0 rgba(40,25,10,.2),0 10px 24px rgba(40,25,10,.14);
   --font-sans:'Inter','Noto Sans SC',sans-serif;
   --font-display:'Playfair Display','Noto Serif SC',serif;
+  --font-serif:'Cormorant Garamond','Noto Serif SC',serif;
+  --font-mono:'JetBrains Mono','IBM Plex Mono',monospace;
 }
 .card{border:1.5px solid var(--border-strong)}
 .divider-accent{background:var(--accent-3);height:4px;width:80px}

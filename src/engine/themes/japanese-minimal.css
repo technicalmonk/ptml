@@ -10,9 +10,10 @@
   --radius:0px;--radius-sm:0px;--radius-lg:2px;
   --shadow:none;
   --shadow-lg:0 1px 0 rgba(40,30,20,.12);
-  --font-sans:'Inter','Noto Sans SC',sans-serif;
-  --font-serif:'Noto Serif SC','Playfair Display',serif;
-  --font-display:'Noto Serif SC','Playfair Display',serif;
+  --font-display:'Noto Serif JP','Noto Serif SC',serif;
+  --font-sans:'Noto Sans JP','Noto Sans SC',sans-serif;
+  --font-serif:'Noto Serif JP','Noto Serif SC',serif;
+  --font-mono:'JetBrains Mono','IBM Plex Mono',monospace;
 }
 h1.title,h2.title,.h1,.h2{font-weight:500;letter-spacing:.04em}
 .card{border:1px solid var(--border);box-shadow:none;padding:36px 40px}

@@ -10,5 +10,8 @@
   --radius:12px;--radius-sm:8px;--radius-lg:18px;
   --shadow:0 10px 30px rgba(0,0,0,.4);
   --shadow-lg:0 22px 60px rgba(0,0,0,.55);
-  --font-sans:'Inter','Noto Sans SC',sans-serif;
+  --font-display:'Fira Sans','Noto Sans SC',sans-serif;
+  --font-sans:'Fira Sans','Noto Sans SC',sans-serif;
+  --font-serif:'Playfair Display','Noto Serif SC',Georgia,serif;
+  --font-mono:'Fira Code','JetBrains Mono',monospace;
 }

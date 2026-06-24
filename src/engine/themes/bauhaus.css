@@ -11,6 +11,8 @@
   --shadow:4px 4px 0 #111;--shadow-lg:8px 8px 0 #111;
   --font-sans:'Space Grotesk','Inter','Noto Sans SC',sans-serif;
   --font-display:'Archivo Black',sans-serif;
+  --font-serif:'Playfair Display','Noto Serif SC',Georgia,serif;
+  --font-mono:'JetBrains Mono','IBM Plex Mono',monospace;
   --letter-tight:-.03em;
 }
 .card{border:2px solid #111}
