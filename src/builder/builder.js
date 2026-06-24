@@ -400,7 +400,7 @@ function loadInspiration(id) {
 function saveDeck() {
   if (!currentDeck) return;
   currentDeck.title = deckTitle.value;
-  currentDeck.content = editor.value;
+  // Content is already synced by toolbar's onUpdate callback
 
   // Check slide limit for free users
   const limits = PTMLClient.getLimits();
@@ -429,7 +429,7 @@ function scheduleAutosave() {
   saveTimer = setTimeout(() => {
     if (currentDeck) {
       currentDeck.title = deckTitle.value;
-      currentDeck.content = editor.value;
+      // Content already synced by toolbar onUpdate
       ThumbnailGen.updateDeckThumbnail(currentDeck);
       PTMLClient.saveDeck(currentDeck);
     }
