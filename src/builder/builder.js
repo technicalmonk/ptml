@@ -772,6 +772,12 @@ function showToast(msg, type) {
   setTimeout(() => toast.classList.remove('show'), 3000);
 }
 
+function goDashboard() {
+  var user = PTMLClient.getUser();
+  var target = user ? '../../public/dashboard.html' : '../../public/login.html';
+  window.location.href = target;
+}
+
 function escapeHtml(s) {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
