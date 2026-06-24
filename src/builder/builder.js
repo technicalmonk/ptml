@@ -426,6 +426,7 @@ function saveDeck() {
     return;
   }
 
+  ThumbnailGen.updateDeckThumbnail(currentDeck);
   PTMLClient.saveDeck(currentDeck);
   showToast('Saved', 'success');
   if (currentView === 'decks') renderSlidesPanel();
@@ -437,6 +438,7 @@ function scheduleAutosave() {
     if (currentDeck) {
       currentDeck.title = deckTitle.value;
       currentDeck.content = editor.value;
+      ThumbnailGen.updateDeckThumbnail(currentDeck);
       PTMLClient.saveDeck(currentDeck);
     }
   }, 1500);

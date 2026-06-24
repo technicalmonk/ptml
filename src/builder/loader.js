@@ -8,6 +8,7 @@
     '../client/pexels.js',
     'toolbar.js',
     'template-chooser.js',
+    'thumbnail-gen.js',
     'builder.js'
   ];
   function loadNext(i) {

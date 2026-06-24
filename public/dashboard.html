@@ -131,7 +131,7 @@ function renderMyDecks() {
       var slideCount = (d.content.match(/\n---\n/g) || []).length + 1;
       var date = d.updatedAt ? new Date(d.updatedAt).toLocaleDateString() : '';
       return '<div class="preso-card" onclick="openDeck(\'' + d.id + '\')">' +
-        '<div class="preso-thumb"><span>' + (d.content.match(/^#\s+(.+)/m) ? '📊' : '📄') + '</span>' +
+        '<div class="preso-thumb">' + (d.thumbnail ? '<img src="' + d.thumbnail + '" style="width:100%;height:100%;object-fit:cover" alt="">' : '<span>' + (d.content && d.content.match(/^#\s+(.+)/m) ? '📊' : '📄') + '</span>') +
         '<span class="slide-count">' + slideCount + ' slides</span></div>' +
         '<div class="preso-body"><h3>' + escapeHtml(d.title || 'Untitled') + '</h3><p>Updated ' + date + '</p></div>' +
         '<div class="preso-actions">' +
