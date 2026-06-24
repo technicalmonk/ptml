@@ -65,15 +65,27 @@ function init() {
     }
   });
 
-  // Load most recent deck or create new
+  // Load most recent deck or show template chooser
   const decks = PTMLClient.getDecks();
   if (decks.length > 0) {
     loadDeck(decks[decks.length - 1].id);
+    switchView('decks');
   } else {
-    newDeck();
+    TemplateChooser.show(function(template) {
+      currentDeck = {
+        id: PTMLClient.generateId(),
+        title: template.title || 'Untitled Deck',
+        content: template.content,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      PTMLClient.saveDeck(currentDeck);
+      loadDeckUI();
+      switchView('decks');
+    });
+    return;
   }
 
-  switchView('decks');
 }
 
 // ── Views ──────────────────────────────────────────────────────

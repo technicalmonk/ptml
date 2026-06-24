@@ -1,10 +1,11 @@
 // PTML script loader — loads scripts in order
-// Using external file because some browsers block inline scripts on page load
 (function() {
   var scripts = [
     '../engine/runtime.js',
     '../parser/ptml-parser.js',
     '../client/ptml-client.js',
+    'toolbar.js',
+    'template-chooser.js',
     'builder.js'
   ];
   function loadNext(i) {
