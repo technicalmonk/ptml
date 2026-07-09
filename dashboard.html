@@ -96,8 +96,8 @@
 </div>
 <div class="toast" id="toast"></div>
 
-<script src="../src/client/ptml-client.js"></script>
-<script src="../src/builder/template-chooser.js"></script>
+<script src="src/client/ptml-client.js"></script>
+<script src="src/builder/template-chooser.js"></script>
 <script>
 // Auth check
 var user = PTMLClient.getUser();
@@ -185,17 +185,17 @@ document.addEventListener('click', function(e) {
 
 function newPresentation() {
   localStorage.setItem('ptml:new-deck', 'template-chooser');
-  window.location.href = '../src/builder/builder.html';
+  window.location.href = 'src/builder/builder.html';
 }
 
 function openDeck(id) {
   localStorage.setItem('ptml:open-deck', id);
-  window.location.href = '../src/builder/builder.html';
+  window.location.href = 'src/builder/builder.html';
 }
 
 function openInspiration(id) {
   localStorage.setItem('ptml:open-inspiration', id);
-  window.location.href = '../src/builder/builder.html';
+  window.location.href = 'src/builder/builder.html';
 }
 
 function cloneDeck(id) {
@@ -210,12 +210,12 @@ function cloneDeck(id) {
   };
   PTMLClient.saveDeck(clone);
   localStorage.setItem('ptml:open-deck', clone.id);
-  window.location.href = '../src/builder/builder.html';
+  window.location.href = 'src/builder/builder.html';
 }
 
 function cloneFromExisting(id) {
   localStorage.setItem('ptml:open-inspiration', id);
-  window.location.href = '../src/builder/builder.html';
+  window.location.href = 'src/builder/builder.html';
 }
 
 function renameDeck(id) {

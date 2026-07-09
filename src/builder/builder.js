@@ -674,7 +674,7 @@ function showToast(msg, type) {
 
 function goDashboard() {
   var user = PTMLClient.getUser();
-  var target = user ? '../../public/dashboard.html' : '../../public/login.html';
+  var target = user ? '../../dashboard.html' : '../../login.html';
   window.location.href = target;
 }
 

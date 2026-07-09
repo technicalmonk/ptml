@@ -159,8 +159,11 @@ ptml/
       ptml-parser.js   PTML Markdown parser (browser + Node)
       ptml-loader.js   Client-side loader for dynamic .md loading
       build.js         Node.js build script (md -> html)
-  public/
-    viewer.html        Live viewer page
+  index.html          Landing page
+  viewer.html         Live viewer page
+  login.html          Simulated auth page
+  dashboard.html      User dashboard
+  design-system.css   Shared CSS design system
   examples/
     ptml-overview.md   Example deck (5 slides)
     code-showcase.md   Code-focused example (4 slides)
@@ -174,7 +177,7 @@ ptml/
 1. Push this repo to GitHub
 2. In Vercel, import the repo
 3. No build step needed — Vercel serves the static files directly
-4. The viewer page is at `/public/viewer.html`
+4. The viewer page is at `/viewer.html`
 5. Decks can be loaded via URL: `?deck=path/to/deck.md`
 
 The `vercel.json` includes a rewrite rule so `/deck/path/to/deck.md`

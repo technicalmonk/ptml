@@ -52,8 +52,8 @@
     </div>
   </div>
 
-  <script src="../src/parser/ptml-parser.js"></script>
-  <script src="../src/parser/ptml-loader.js"></script>
+  <script src="src/parser/ptml-parser.js"></script>
+  <script src="src/parser/ptml-loader.js"></script>
   <script>
     // Auto-detect ?deck= URL parameter
     var params = new URLSearchParams(location.search);
@@ -65,8 +65,8 @@
 
     // Load example list
     var examples = [
-      { name: 'PTML Overview', file: '../examples/ptml-overview.md', desc: '5 slides — cover, features, roadmap, pricing, CTA' },
-      { name: 'PTML Overview (Embed)', file: '../examples/ptml-overview-embed.html', desc: 'Same deck, pre-built as single HTML file' }
+      { name: 'PTML Overview', file: 'examples/ptml-overview.md', desc: '5 slides — cover, features, roadmap, pricing, CTA' },
+      { name: 'PTML Overview (Embed)', file: 'examples/ptml-overview-embed.html', desc: 'Same deck, pre-built as single HTML file' }
     ];
     var list = document.getElementById('example-list');
     examples.forEach(function(ex) {
@@ -91,7 +91,7 @@
 
       // Use PTML loader to render inline
       PTMLLoader.loadDeck(url, document.documentElement, {
-        basePath: '../src/engine'
+        basePath: 'src/engine'
       });
     }
   </script>

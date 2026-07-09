@@ -4,7 +4,7 @@
   "rewrites": [
     {
       "source": "/deck/:path*",
-      "destination": "/public/viewer.html?deck=/:path*"
+      "destination": "/viewer.html?deck=/:path*"
     }
   ]
 }
