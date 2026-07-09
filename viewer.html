@@ -55,12 +55,13 @@
   <script src="src/parser/ptml-parser.js"></script>
   <script src="src/parser/ptml-loader.js"></script>
   <script>
-    // Auto-detect URL parameters: ?deck=path.md or ?data=base64markdown
+    // Auto-detect URL parameters: ?deck=path.md, ?data=base64, ?share=slug
     var params = new URLSearchParams(location.search);
     var deckParam = params.get('deck');
     var dataParam = params.get('data');
+    var shareParam = params.get('share');
 
-    // Load example list — all .md files, clicked to load in-viewer (not navigate away)
+    // Load example list
     var examples = [
       { name: 'PTML Overview', file: 'examples/ptml-overview.md', desc: '5 slides — cover, features, roadmap, pricing, CTA' },
       { name: 'Code Showcase', file: 'examples/code-showcase.md', desc: 'Developer-focused with code blocks (4 slides)' },
@@ -75,27 +76,33 @@
       list.appendChild(a);
     });
 
-    if (dataParam) {
+    function renderMarkdown(md) {
+      var parsed = PTML.parse(md);
+      var html = PTML.buildHTML(parsed, { basePath: 'src/engine' });
+      document.open();
+      document.write(html);
+      document.close();
+      var s1 = document.createElement('script');
+      s1.src = 'src/engine/runtime.js';
+      s1.onload = function() {
+        var s2 = document.createElement('script');
+        s2.src = 'src/engine/animations/fx-runtime.js';
+        s2.onload = function() {
+          window.dispatchEvent(new Event('DOMContentLoaded'));
+        };
+        document.head.appendChild(s2);
+      };
+      document.head.appendChild(s1);
+    }
+
+    if (shareParam) {
+      // Server-shared deck: resolve slug via API
+      PTMLLoader_resolveShare(shareParam);
+    } else if (dataParam) {
       // Shared deck: base64-encoded markdown in the URL
       try {
         var md = decodeURIComponent(escape(atob(dataParam)));
-        var parsed = PTML.parse(md);
-        var html = PTML.buildHTML(parsed, { basePath: 'src/engine' });
-        document.open();
-        document.write(html);
-        document.close();
-        // Load runtime scripts
-        var s1 = document.createElement('script');
-        s1.src = 'src/engine/runtime.js';
-        s1.onload = function() {
-          var s2 = document.createElement('script');
-          s2.src = 'src/engine/animations/fx-runtime.js';
-          s2.onload = function() {
-            window.dispatchEvent(new Event('DOMContentLoaded'));
-          };
-          document.head.appendChild(s2);
-        };
-        document.head.appendChild(s1);
+        renderMarkdown(md);
       } catch (e) {
         var errEl = document.getElementById('error');
         errEl.textContent = 'Failed to decode shared deck: ' + e.message;
@@ -117,6 +124,23 @@
       PTMLLoader.loadDeck(url, document.documentElement, {
         basePath: 'src/engine'
       });
+    }
+
+    // Resolve a server-side share slug
+    function PTMLLoader_resolveShare(slug) {
+      fetch('/api/share?slug=' + encodeURIComponent(slug))
+        .then(function(r) {
+          if (!r.ok) throw new Error('Deck not found or no longer shared');
+          return r.json();
+        })
+        .then(function(data) {
+          renderMarkdown(data.deck.content);
+        })
+        .catch(function(err) {
+          var errEl = document.getElementById('error');
+          errEl.textContent = err.message;
+          errEl.style.display = 'block';
+        });
     }
   </script>
 </body>

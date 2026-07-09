@@ -25,10 +25,13 @@ const toast = document.getElementById('toast');
 const planBadge = document.getElementById('plan-badge');
 
 // ── Init ───────────────────────────────────────────────────────
-function init() {
-  // Init user if not set
-  if (!PTMLClient.getUser()) {
-    PTMLClient.setUser({ id: 'user_' + Date.now(), name: 'Guest' });
+async function init() {
+  // Check auth session
+  var user = await PTMLClient.checkSession();
+  if (!user) {
+    // Not logged in — redirect to login
+    window.location.href = '../../login.html';
+    return;
   }
   updatePlanBadge();
 
@@ -77,12 +80,8 @@ function init() {
   localStorage.removeItem('ptml:new-deck');
 
   if (openDeckId) {
-    var deck = PTMLClient.getDeck(openDeckId);
-    if (deck) {
-      loadDeck(deck.id);
-      switchView('decks');
-      return;
-    }
+    loadDeck(openDeckId);
+    return;
   }
 
   if (openInspiration) {
@@ -99,19 +98,36 @@ function init() {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
-      PTMLClient.saveDeck(currentDeck);
-      loadDeckUI();
-      switchView('decks');
+      PTMLClient.saveDeck(currentDeck).then(function() {
+        loadDeckUI();
+        switchView('decks');
+      });
     });
     return;
   }
 
   // Fallback: Load most recent deck or show template chooser
-  const decks = PTMLClient.getDecks();
-  if (decks.length > 0) {
-    loadDeck(decks[decks.length - 1].id);
-    switchView('decks');
-  } else {
+  try {
+    var decks = await PTMLClient.getDecks();
+    if (decks.length > 0) {
+      loadDeck(decks[0].id);
+    } else {
+      TemplateChooser.show(function(template) {
+        currentDeck = {
+          id: PTMLClient.generateId(),
+          title: template.title || 'Untitled Deck',
+          content: template.content,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+        PTMLClient.saveDeck(currentDeck).then(function() {
+          loadDeckUI();
+          switchView('decks');
+        });
+      });
+    }
+  } catch (e) {
+    console.error('[PTML] Init error:', e);
     TemplateChooser.show(function(template) {
       currentDeck = {
         id: PTMLClient.generateId(),
@@ -120,11 +136,11 @@ function init() {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
-      PTMLClient.saveDeck(currentDeck);
-      loadDeckUI();
-      switchView('decks');
+      PTMLClient.saveDeck(currentDeck).then(function() {
+        loadDeckUI();
+        switchView('decks');
+      });
     });
-    return;
   }
 
 }
@@ -325,17 +341,21 @@ function newDeck() {
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };
-  PTMLClient.saveDeck(currentDeck);
-  loadDeckUI();
-  showToast('New deck created', 'success');
+  PTMLClient.saveDeck(currentDeck).then(function() {
+    loadDeckUI();
+    showToast('New deck created', 'success');
+  });
 }
 
 function loadDeck(id) {
-  const deck = PTMLClient.getDeck(id);
-  if (!deck) { showToast('Deck not found', 'error'); return; }
-  currentDeck = deck;
-  loadDeckUI();
-  if (currentView === 'decks') renderSlidesPanel();
+  PTMLClient.getDeck(id).then(function(deck) {
+    if (!deck) { showToast('Deck not found', 'error'); return; }
+    currentDeck = deck;
+    loadDeckUI();
+    if (currentView === 'decks') renderSlidesPanel();
+  }).catch(function(err) {
+    showToast('Failed to load deck', 'error');
+  });
 }
 
 function loadDeckUI() {
@@ -368,9 +388,10 @@ function loadInspiration(id) {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
-      PTMLClient.saveDeck(currentDeck);
-      loadDeckUI();
-      switchView('decks');
+      PTMLClient.saveDeck(currentDeck).then(function() {
+        loadDeckUI();
+        switchView('decks');
+      });
     })
     .catch(function() { showToast('Failed to load inspiration', 'error'); });
 }
@@ -381,9 +402,12 @@ function saveDeck() {
   // Content is already synced by toolbar's onUpdate callback
 
   ThumbnailGen.updateDeckThumbnail(currentDeck);
-  PTMLClient.saveDeck(currentDeck);
-  showToast('Saved', 'success');
-  if (currentView === 'decks') renderSlidesPanel();
+  PTMLClient.saveDeck(currentDeck).then(function() {
+    showToast('Saved', 'success');
+    if (currentView === 'decks') renderSlidesPanel();
+  }).catch(function() {
+    showToast('Save failed', 'error');
+  });
 }
 
 function scheduleAutosave() {
@@ -393,7 +417,9 @@ function scheduleAutosave() {
       currentDeck.title = deckTitle.value;
       // Content already synced by toolbar onUpdate
       ThumbnailGen.updateDeckThumbnail(currentDeck);
-      PTMLClient.saveDeck(currentDeck);
+      PTMLClient.saveDeck(currentDeck).catch(function(e) {
+        console.error('[PTML] Autosave error:', e);
+      });
     }
   }, 1500);
 }
@@ -463,15 +489,33 @@ function exportDeck(format) {
 
 function copyShareLink() {
   if (!currentDeck) return;
-  // Encode deck content as base64 in the URL so the viewer can render it
-  // without any server-side storage. Works cross-device.
+
+  if (PTMLClient.isLoggedIn()) {
+    // Logged in: create a server-side share link with a short slug
+    PTMLClient.createShareLink(currentDeck.id).then(function(result) {
+      var url = location.origin + '/' + result.url;
+      copyToClipboard(url, 'Share link copied to clipboard');
+    }).catch(function(err) {
+      // Fallback to base64 encoding
+      shareBase64Fallback();
+    });
+  } else {
+    // Not logged in: base64 encode in URL
+    shareBase64Fallback();
+  }
+}
+
+function shareBase64Fallback() {
   var md = currentDeck.content || '';
   var b64 = btoa(unescape(encodeURIComponent(md)));
   var url = location.origin + '/viewer.html?data=' + b64;
-  navigator.clipboard.writeText(url).then(() => {
-    showToast('Share link copied to clipboard', 'success');
-  }).catch(() => {
-    // Fallback: show the link in a modal for manual copy
+  copyToClipboard(url, 'Share link copied to clipboard');
+}
+
+function copyToClipboard(url, msg) {
+  navigator.clipboard.writeText(url).then(function() {
+    showToast(msg, 'success');
+  }).catch(function() {
     modalContent.innerHTML = '<h2>🔗 Share Link</h2><p>Copy this link to share your deck:</p>' +
       '<textarea style="width:100%;height:80px;font-family:monospace;font-size:11px;padding:10px;border:1px solid var(--c-border);border-radius:8px;background:var(--c-surface-hov);color:var(--c-text);resize:none" readonly>' + url + '</textarea>' +
       '<button onclick="closeModal()" class="btn btn-secondary" style="margin-top:12px">Close</button>';

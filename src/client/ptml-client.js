@@ -1,13 +1,13 @@
-// PTML Client — storage + analytics
-// All client-side for now, backed by localStorage. Swappable for API later.
-// All users get full Pro features — no freemium gating.
+// PTML Client — storage + analytics via API
+// Uses /api/* endpoints (Vercel serverless + Neon Postgres).
+// Falls back to localStorage when offline or for anonymous users.
 
 (function () {
   'use strict';
 
-  const STORAGE_KEY = 'ptml:decks';
-  const ANALYTICS_KEY = 'ptml:analytics';
   const USER_KEY = 'ptml:user';
+  const TOKEN_KEY = 'ptml_token';
+  const LOCAL_DECKS_KEY = 'ptml:decks';
 
   const ALL_THEMES = [
     'minimal-white', 'editorial-serif', 'soft-pastel', 'sharp-mono',
@@ -21,8 +21,6 @@
     'xiaohongshu-white',
   ];
 
-  // Font pairing metadata for each theme
-  // { display, body, serif, mono }
   const THEME_FONTS = {
     'minimal-white':          { display: 'Inter', body: 'Inter', serif: 'Playfair Display', mono: 'JetBrains Mono' },
     'editorial-serif':        { display: 'Playfair Display', body: 'Lora', serif: 'Playfair Display', mono: 'JetBrains Mono' },
@@ -62,6 +60,21 @@
     'xiaohongshu-white':      { display: 'Noto Serif SC', body: 'Noto Sans SC', serif: 'Noto Serif SC', mono: 'JetBrains Mono' },
   };
 
+  // ── Token management ──────────────────────────────────────────
+  function getToken() {
+    return localStorage.getItem(TOKEN_KEY) || null;
+  }
+
+  function setToken(token) {
+    if (token) localStorage.setItem(TOKEN_KEY, token);
+    else localStorage.removeItem(TOKEN_KEY);
+  }
+
+  function authHeaders() {
+    var token = getToken();
+    return token ? { 'Authorization': 'Bearer ' + token } : {};
+  }
+
   // ── User / Plan ──────────────────────────────────────────────
   function getUser() {
     try { return JSON.parse(localStorage.getItem(USER_KEY)) || null; }
@@ -69,24 +82,81 @@
   }
 
   function setUser(user) {
-    // All users get pro — no freemium
-    if (user) user.plan = 'pro';
-    localStorage.setItem(USER_KEY, JSON.stringify(user));
+    if (user) {
+      user.plan = 'pro';
+      localStorage.setItem(USER_KEY, JSON.stringify(user));
+    } else {
+      localStorage.removeItem(USER_KEY);
+      setToken(null);
+    }
   }
 
-  function getPlan() {
-    // Everyone is Pro — all features unlocked
-    return 'pro';
+  function isLoggedIn() {
+    return !!getToken() && !!getUser();
   }
 
-  function isPro() {
-    return true;
+  // Check session with server (async)
+  async function checkSession() {
+    if (!getToken()) return null;
+    try {
+      var resp = await fetch('/api/auth', {
+        headers: authHeaders()
+      });
+      if (resp.ok) {
+        var data = await resp.json();
+        setUser(data.user);
+        return data.user;
+      } else {
+        // Token expired or invalid
+        setUser(null);
+        return null;
+      }
+    } catch (e) {
+      // Network error — return cached user
+      return getUser();
+    }
   }
+
+  // Sign up
+  async function signup(name, email, password) {
+    var resp = await fetch('/api/auth', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'signup', name, email, password })
+    });
+    var data = await resp.json();
+    if (!resp.ok) throw new Error(data.error || 'Signup failed');
+    setUser(data.user);
+    setToken(data.token);
+    return data.user;
+  }
+
+  // Sign in
+  async function signin(email, password) {
+    var resp = await fetch('/api/auth', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'signin', email, password })
+    });
+    var data = await resp.json();
+    if (!resp.ok) throw new Error(data.error || 'Signin failed');
+    setUser(data.user);
+    setToken(data.token);
+    return data.user;
+  }
+
+  // Sign out
+  function signout() {
+    setUser(null);
+  }
+
+  function getPlan() { return 'pro'; }
+  function isPro() { return true; }
 
   const PLAN_LIMITS = {
     maxSlides: Infinity,
     maxDecks: Infinity,
-    themes: null, // null = all themes
+    themes: null,
     canExportPDF: true,
     canImportPPTX: true,
     canUseDesignAgent: true,
@@ -94,124 +164,132 @@
     analyticsLevel: 'enriched',
   };
 
-  function getLimits() {
-    return PLAN_LIMITS;
-  }
+  function getLimits() { return PLAN_LIMITS; }
+  function getAvailableThemes() { return ALL_THEMES; }
 
-  function getAvailableThemes() {
-    return ALL_THEMES;
-  }
+  // ── Deck Storage (API with localStorage fallback) ────────────
 
-  // ── Deck Storage ──────────────────────────────────────────────
-  function getDecks() {
-    try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+  async function getDecks() {
+    if (isLoggedIn()) {
+      try {
+        var resp = await fetch('/api/decks', { headers: authHeaders() });
+        if (resp.ok) {
+          var data = await resp.json();
+          return data.decks;
+        }
+      } catch (e) { /* fall through to localStorage */ }
+    }
+    // Fallback: localStorage
+    try { return JSON.parse(localStorage.getItem(LOCAL_DECKS_KEY)) || []; }
     catch (e) { return []; }
   }
 
-  function getDeck(id) {
-    return getDecks().find(d => d.id === id) || null;
+  async function getDeck(id) {
+    // Try API first (for full content)
+    if (isLoggedIn()) {
+      try {
+        var resp = await fetch('/api/decks?id=' + encodeURIComponent(id), { headers: authHeaders() });
+        if (resp.ok) {
+          var data = await resp.json();
+          return data.deck || null;
+        }
+      } catch (e) { /* fall through */ }
+    }
+    // Fallback: localStorage
+    var decks = getLocalDecks();
+    return decks.find(function(d) { return d.id === id; }) || null;
   }
 
-  function saveDeck(deck) {
-    const decks = getDecks();
-    const idx = decks.findIndex(d => d.id === deck.id);
+  async function saveDeck(deck) {
     deck.updatedAt = new Date().toISOString();
+
+    if (isLoggedIn()) {
+      try {
+        var resp = await fetch('/api/decks', {
+          method: 'POST',
+          headers: Object.assign({ 'Content-Type': 'application/json' }, authHeaders()),
+          body: JSON.stringify(deck)
+        });
+        if (resp.ok) {
+          var data = await resp.json();
+          return data.deck;
+        }
+      } catch (e) { /* fall through */ }
+    }
+
+    // Fallback: localStorage
+    var decks = getLocalDecks();
+    var idx = decks.findIndex(function(d) { return d.id === deck.id; });
     if (idx >= 0) decks[idx] = deck;
     else {
       deck.createdAt = deck.createdAt || new Date().toISOString();
       decks.push(deck);
     }
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(decks));
+    localStorage.setItem(LOCAL_DECKS_KEY, JSON.stringify(decks));
     return deck;
   }
 
-  function deleteDeck(id) {
-    const decks = getDecks().filter(d => d.id !== id);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(decks));
+  async function deleteDeck(id) {
+    if (isLoggedIn()) {
+      try {
+        var resp = await fetch('/api/decks?id=' + encodeURIComponent(id), {
+          method: 'DELETE',
+          headers: authHeaders()
+        });
+        if (resp.ok) return;
+      } catch (e) { /* fall through */ }
+    }
+    // Fallback: localStorage
+    var decks = getLocalDecks().filter(function(d) { return d.id !== id; });
+    localStorage.setItem(LOCAL_DECKS_KEY, JSON.stringify(decks));
+  }
+
+  // Create share link
+  async function createShareLink(deckId) {
+    if (!isLoggedIn()) {
+      // Fallback: base64 encode in URL
+      return null; // caller handles this
+    }
+    var resp = await fetch('/api/share', {
+      method: 'POST',
+      headers: Object.assign({ 'Content-Type': 'application/json' }, authHeaders()),
+      body: JSON.stringify({ deckId: deckId })
+    });
+    var data = await resp.json();
+    if (!resp.ok) throw new Error(data.error || 'Failed to create share link');
+    return data;
+  }
+
+  // Resolve a share slug to deck content
+  async function resolveShare(slug) {
+    var resp = await fetch('/api/share?slug=' + encodeURIComponent(slug));
+    var data = await resp.json();
+    if (!resp.ok) throw new Error(data.error || 'Deck not found');
+    return data.deck;
+  }
+
+  // localStorage helpers
+  function getLocalDecks() {
+    try { return JSON.parse(localStorage.getItem(LOCAL_DECKS_KEY)) || []; }
+    catch (e) { return []; }
   }
 
   function generateId() {
     return 'deck_' + Date.now() + '_' + Math.random().toString(36).substring(2, 8);
   }
 
-  // ── Analytics ────────────────────────────────────────────────
-  function getAnalytics(deckId) {
-    try {
-      const all = JSON.parse(localStorage.getItem(ANALYTICS_KEY)) || {};
-      return all[deckId] || { views: [], uniqueViewers: 0 };
-    } catch (e) {
-      return { views: [], uniqueViewers: 0 };
-    }
-  }
-
-  function recordView(deckId, viewerId) {
-    const all = {};
-    try { Object.assign(all, JSON.parse(localStorage.getItem(ANALYTICS_KEY)) || {}); } catch (e) {}
-    if (!all[deckId]) all[deckId] = { views: [], uniqueViewers: 0 };
-
-    const view = {
-      timestamp: new Date().toISOString(),
-      viewerId: viewerId || 'anonymous',
-      slide: 1,
-    };
-    all[deckId].views.push(view);
-
-    // Count unique viewers
-    const uniqueIds = new Set(all[deckId].views.map(v => v.viewerId));
-    all[deckId].uniqueViewers = uniqueIds.size;
-    all[deckId].totalViews = all[deckId].views.length;
-
-    localStorage.setItem(ANALYTICS_KEY, JSON.stringify(all));
-    return all[deckId];
-  }
-
-  function getAnalyticsSummary(deckId) {
-    const data = getAnalytics(deckId);
-    const views = data.views || [];
-
-    // All users get enriched analytics
-    const byDay = {};
-    views.forEach(v => {
-      const day = v.timestamp.split('T')[0];
-      byDay[day] = (byDay[day] || 0) + 1;
-    });
-
-    return {
-      totalViews: views.length,
-      uniqueViewers: data.uniqueViewers,
-      lastViewed: views.length > 0 ? views[views.length - 1].timestamp : null,
-      level: 'enriched',
-      recentViews: views.slice(-20).map(v => ({
-        timestamp: v.timestamp,
-        viewerId: v.viewerId,
-        slide: v.slide,
-      })),
-      viewsByDay: byDay,
-      avgViewsPerDay: Object.keys(byDay).length > 0
-        ? (views.length / Object.keys(byDay).length).toFixed(1)
-        : 0,
-    };
-  }
-
-  // ── Export ────────────────────────────────────────────────────
-  function exportHTML(markdown, theme, embed) {
-    const parsed = window.PTML.parse(markdown);
-    return window.PTML.buildHTML(parsed, { basePath: '.', theme: theme, embed: embed });
-  }
-
-  // ── Public API ───────────────────────────────────────────────
+  // ── Export ───────────────────────────────────────────────────
   window.PTMLClient = {
-    // User
+    // User / Auth
     getUser, setUser, getPlan, isPro, getLimits, getAvailableThemes,
+    isLoggedIn, checkSession, signup, signin, signout,
+    getToken, setToken,
     // Decks
     getDecks, getDeck, saveDeck, deleteDeck, generateId,
-    // Analytics
-    recordView, getAnalytics, getAnalyticsSummary,
-    // Export
-    exportHTML,
+    // Sharing
+    createShareLink, resolveShare,
     // Constants
-    ALL_THEMES,
-    THEME_FONTS,
+    ALL_THEMES, THEME_FONTS,
   };
 
 })();

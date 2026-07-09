@@ -8,7 +8,7 @@
 <style>
 .nav { background:var(--c-surface); border-bottom:1px solid var(--c-border);
   padding:0 24px; height:56px; display:flex; align-items:center; justify-content:space-between; }
-.nav-logo { font-size:18px; font-weight:800; letter-spacing:-0.02em; }
+.nav-logo { font-size:18px; font-weight:800; letter-spacing:-0.02em; cursor:pointer; }
 .nav-right { display:flex; align-items:center; gap:16px; }
 .nav-right .user-name { font-size:14px; color:var(--c-text-2); }
 .preso-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:16px; }
@@ -50,11 +50,12 @@
 .inspiration-tag { display:inline-block; padding:1px 6px; border-radius:4px;
   background:var(--c-accent-subtle); color:var(--c-accent); font-size:10px;
   font-weight:500; margin-left:6px; }
+.loading { text-align:center; padding:60px; color:var(--c-text-3); font-size:14px; }
 </style>
 </head>
 <body>
 <div class="nav">
-  <div class="nav-logo">PTML</div>
+  <div class="nav-logo" onclick="window.location.href='index.html'">PTML</div>
   <div class="nav-right">
     <span class="badge badge-pro" id="plan-badge">PRO</span>
     <span class="user-name" id="user-name">User</span>
@@ -80,7 +81,7 @@
     <div class="section-header">
       <h2>My Presentations</h2>
     </div>
-    <div id="my-decks" class="preso-grid"></div>
+    <div id="my-decks" class="preso-grid"><div class="loading">Loading your decks...</div></div>
   </div>
 
   <hr class="divider">
@@ -99,50 +100,81 @@
 <script src="src/client/ptml-client.js"></script>
 <script src="src/builder/template-chooser.js"></script>
 <script>
-// Auth check
-var user = PTMLClient.getUser();
-if (!user) { window.location.href = 'login.html'; }
-
-document.getElementById('user-name').textContent = user.name || 'User';
-document.getElementById('plan-badge').textContent = 'PRO';
-document.getElementById('plan-badge').className = 'badge badge-pro';
-
-// Inspiration decks (examples baked in)
-var inspirations = [
-  { id:'insp-ptml', title:'PTML Overview', desc:'5 slides introducing PTML', slides:5, icon:'📊' },
-  { id:'insp-code', title:'Code Showcase', desc:'Developer-focused with code blocks', slides:4, icon:'💻' },
-  { id:'insp-min', title:'Minimal Deck', desc:'Clean, no directives, auto-layout', slides:4, icon:'📄' },
-  { id:'insp-pitch', title:'Pitch Deck', desc:'Startup pitch template', slides:6, icon:'🚀' },
-  { id:'insp-tech', title:'Tech Talk', desc:'Engineering presentation', slides:6, icon:'🔧' },
-  { id:'insp-weekly', title:'Weekly Report', desc:'Status update template', slides:5, icon:'📈' },
-];
-
-function renderMyDecks() {
-  var decks = PTMLClient.getDecks();
-  var container = document.getElementById('my-decks');
-  if (decks.length === 0) {
-    container.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">📄</div><h3>No presentations yet</h3><p>Create your first presentation to get started.</p><button class="btn btn-primary" onclick="newPresentation()">+ New Presentation</button></div>';
-    document.getElementById('my-decks-section').querySelector('.section-header').style.display = 'none';
-  } else {
-    document.getElementById('my-decks-section').querySelector('.section-header').style.display = '';
-    container.innerHTML = decks.map(function(d) {
-      var slideCount = (d.content.match(/\n---\n/g) || []).length + 1;
-      var date = d.updatedAt ? new Date(d.updatedAt).toLocaleDateString() : '';
-      return '<div class="preso-card" onclick="openDeck(\'' + d.id + '\')">' +
-        '<div class="preso-thumb">' + (d.thumbnail ? '<img src="' + d.thumbnail + '" style="width:100%;height:100%;object-fit:cover" alt="">' : '<span>' + (d.content && d.content.match(/^#\s+(.+)/m) ? '📊' : '📄') + '</span>') +
-        '<span class="slide-count">' + slideCount + ' slides</span></div>' +
-        '<div class="preso-body"><h3>' + escapeHtml(d.title || 'Untitled') + '</h3><p>Updated ' + date + '</p></div>' +
-        '<div class="preso-actions">' +
-        '<button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();renameDeck(\'' + d.id + '\')">Rename</button>' +
-        '<button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();duplicateDeck(\'' + d.id + '\')">Duplicate</button>' +
-        '<button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();deleteDeckPrompt(\'' + d.id + '\')" style="color:var(--c-red)">Delete</button>' +
-        '</div></div>';
-    }).join('');
+// Auth check — redirect to login if not authenticated
+PTMLClient.checkSession().then(function(user) {
+  if (!user) {
+    window.location.href = 'login.html';
+    return;
   }
-  renderCloneMenu();
+  initDashboard(user);
+}).catch(function() {
+  // Fallback: check cached user (offline mode)
+  var cached = PTMLClient.getUser();
+  if (cached) {
+    initDashboard(cached);
+  } else {
+    window.location.href = 'login.html';
+  }
+});
+
+function initDashboard(user) {
+  document.getElementById('user-name').textContent = user.name || 'User';
+  document.getElementById('plan-badge').textContent = 'PRO';
+  document.getElementById('plan-badge').className = 'badge badge-pro';
+
+  // Load decks from API
+  loadDecks();
+
+  // Inspiration decks
+  var inspirations = [
+    { id:'insp-ptml', title:'PTML Overview', desc:'5 slides introducing PTML', slides:5, icon:'📊' },
+    { id:'insp-code', title:'Code Showcase', desc:'Developer-focused with code blocks', slides:4, icon:'💻' },
+    { id:'insp-min', title:'Minimal Deck', desc:'Clean, no directives, auto-layout', slides:4, icon:'📄' },
+    { id:'insp-pitch', title:'Pitch Deck', desc:'Startup pitch template', slides:6, icon:'🚀' },
+    { id:'insp-tech', title:'Tech Talk', desc:'Engineering presentation', slides:6, icon:'🔧' },
+    { id:'insp-weekly', title:'Weekly Report', desc:'Status update template', slides:5, icon:'📈' },
+  ];
+
+  renderInspirations(inspirations);
+  renderCloneMenu(inspirations);
 }
 
-function renderInspirations() {
+async function loadDecks() {
+  try {
+    var decks = await PTMLClient.getDecks();
+    renderMyDecks(decks);
+  } catch (err) {
+    document.getElementById('my-decks').innerHTML = '<div class="loading">Failed to load decks. Please refresh.</div>';
+  }
+}
+
+function renderMyDecks(decks) {
+  var container = document.getElementById('my-decks');
+  if (!decks || decks.length === 0) {
+    container.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">📄</div><h3>No presentations yet</h3><p>Create your first presentation to get started.</p><button class="btn btn-primary" onclick="newPresentation()">+ New Presentation</button></div>';
+    document.getElementById('my-decks-section').querySelector('.section-header').style.display = 'none';
+    return;
+  }
+  document.getElementById('my-decks-section').querySelector('.section-header').style.display = '';
+  container.innerHTML = decks.map(function(d) {
+    var slideCount = (d.content ? (d.content.match(/\n---\n/g) || []).length + 1 : 0);
+    if (!d.content) slideCount = '?';
+    var date = d.updated_at ? new Date(d.updated_at).toLocaleDateString()
+             : d.updatedAt ? new Date(d.updatedAt).toLocaleDateString() : '';
+    var thumb = d.thumbnail ? '<img src="' + d.thumbnail + '" style="width:100%;height:100%;object-fit:cover" alt="">' : '<span>📊</span>';
+    return '<div class="preso-card" onclick="openDeck(\'' + d.id + '\')">' +
+      '<div class="preso-thumb">' + thumb +
+      '<span class="slide-count">' + slideCount + ' slides</span></div>' +
+      '<div class="preso-body"><h3>' + escapeHtml(d.title || 'Untitled') + '</h3><p>Updated ' + date + '</p></div>' +
+      '<div class="preso-actions">' +
+      '<button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();renameDeck(\'' + d.id + '\',\'' + escapeHtml(d.title || 'Untitled') + '\')">Rename</button>' +
+      '<button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();duplicateDeck(\'' + d.id + '\')">Duplicate</button>' +
+      '<button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();deleteDeckPrompt(\'' + d.id + '\',\'' + escapeHtml(d.title || 'Untitled') + '\')" style="color:var(--c-red)">Delete</button>' +
+      '</div></div>';
+  }).join('');
+}
+
+function renderInspirations(inspirations) {
   var container = document.getElementById('inspiration-grid');
   container.innerHTML = inspirations.map(function(d) {
     return '<div class="preso-card" onclick="openInspiration(\'' + d.id + '\')">' +
@@ -156,26 +188,27 @@ function renderInspirations() {
   }).join('');
 }
 
-function renderCloneMenu() {
-  var menu = document.getElementById('clone-menu');
-  var decks = PTMLClient.getDecks();
-  var html = '';
-  if (decks.length > 0) {
-    html += '<div style="padding:4px 8px;font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:var(--c-text-3)">Your Presentations</div>';
-    decks.forEach(function(d) {
-      html += '<button class="dropdown-item" onclick="cloneDeck(\'' + d.id + '\')">' + escapeHtml(d.title || 'Untitled') + '<span class="sub">Duplicate</span></button>';
+function renderCloneMenu(inspirations) {
+  // Async — loads decks then renders
+  PTMLClient.getDecks().then(function(decks) {
+    var menu = document.getElementById('clone-menu');
+    var html = '';
+    if (decks.length > 0) {
+      html += '<div style="padding:4px 8px;font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:var(--c-text-3)">Your Presentations</div>';
+      decks.forEach(function(d) {
+        html += '<button class="dropdown-item" onclick="cloneDeck(\'' + d.id + '\')">' + escapeHtml(d.title || 'Untitled') + '<span class="sub">Duplicate</span></button>';
+      });
+    }
+    html += '<div style="padding:4px 8px;font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:var(--c-text-3)">Inspiration</div>';
+    inspirations.forEach(function(d) {
+      html += '<button class="dropdown-item" onclick="cloneFromExisting(\'' + d.id + '\')">' + d.title + ' <span class="inspiration-tag">example</span><span class="sub">' + d.desc + '</span></button>';
     });
-  }
-  html += '<div style="padding:4px 8px;font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:var(--c-text-3)">Inspiration</div>';
-  inspirations.forEach(function(d) {
-    html += '<button class="dropdown-item" onclick="cloneFromExisting(\'' + d.id + '\')">' + d.title + ' <span class="inspiration-tag">example</span><span class="sub">' + d.desc + '</span></button>';
+    menu.innerHTML = html;
   });
-  menu.innerHTML = html;
 }
 
 function toggleCloneMenu() {
-  var menu = document.getElementById('clone-menu');
-  menu.classList.toggle('show');
+  document.getElementById('clone-menu').classList.toggle('show');
 }
 document.addEventListener('click', function(e) {
   if (!e.target.closest('#clone-dropdown')) {
@@ -199,18 +232,20 @@ function openInspiration(id) {
 }
 
 function cloneDeck(id) {
-  var original = PTMLClient.getDeck(id);
-  if (!original) return;
-  var clone = {
-    id: PTMLClient.generateId(),
-    title: (original.title || 'Untitled') + ' (copy)',
-    content: original.content,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  };
-  PTMLClient.saveDeck(clone);
-  localStorage.setItem('ptml:open-deck', clone.id);
-  window.location.href = 'src/builder/builder.html';
+  PTMLClient.getDeck(id).then(function(original) {
+    if (!original) return;
+    var clone = {
+      id: PTMLClient.generateId(),
+      title: (original.title || 'Untitled') + ' (copy)',
+      content: original.content,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    PTMLClient.saveDeck(clone).then(function(saved) {
+      localStorage.setItem('ptml:open-deck', saved.id);
+      window.location.href = 'src/builder/builder.html';
+    });
+  });
 }
 
 function cloneFromExisting(id) {
@@ -218,15 +253,17 @@ function cloneFromExisting(id) {
   window.location.href = 'src/builder/builder.html';
 }
 
-function renameDeck(id) {
-  var deck = PTMLClient.getDeck(id);
-  if (!deck) return;
-  var name = prompt('Rename presentation:', deck.title || 'Untitled');
+function renameDeck(id, currentName) {
+  var name = prompt('Rename presentation:', currentName);
   if (name && name.trim()) {
-    deck.title = name.trim();
-    PTMLClient.saveDeck(deck);
-    renderMyDecks();
-    showToast('Renamed to ' + deck.title);
+    PTMLClient.getDeck(id).then(function(deck) {
+      if (!deck) return;
+      deck.title = name.trim();
+      PTMLClient.saveDeck(deck).then(function() {
+        loadDecks();
+        showToast('Renamed to ' + deck.title);
+      });
+    });
   }
 }
 
@@ -234,23 +271,22 @@ function duplicateDeck(id) {
   cloneDeck(id);
 }
 
-function deleteDeckPrompt(id) {
-  var deck = PTMLClient.getDeck(id);
-  if (!deck) return;
-  if (confirm('Delete "' + (deck.title || 'Untitled') + '"?')) {
-    PTMLClient.deleteDeck(id);
-    renderMyDecks();
-    showToast('Deleted');
+function deleteDeckPrompt(id, title) {
+  if (confirm('Delete "' + title + '"?')) {
+    PTMLClient.deleteDeck(id).then(function() {
+      loadDecks();
+      showToast('Deleted');
+    });
   }
 }
 
 function logout() {
-  PTMLClient.setUser(null);
+  PTMLClient.signout();
   window.location.href = 'login.html';
 }
 
 function escapeHtml(s) {
-  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
 function showToast(msg) {
@@ -259,10 +295,6 @@ function showToast(msg) {
   el.className = 'toast show success';
   setTimeout(function() { el.className = 'toast'; }, 3000);
 }
-
-// Init
-renderMyDecks();
-renderInspirations();
 </script>
 </body>
 </html>
