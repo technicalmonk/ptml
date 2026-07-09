@@ -10,14 +10,29 @@ module.exports = async (req, res) => {
 
   const pool = getPool();
 
-  // ── GET: list user's decks ───────────────────────────────────
+  // ── GET: list user's decks, or get a single deck by id ────────
   if (req.method === 'GET') {
+    const deckId = req.query.id;
     try {
-      const result = await pool.query(
-        'SELECT id, title, thumbnail, is_public, share_slug, created_at, updated_at FROM decks WHERE user_id = $1 ORDER BY updated_at DESC',
-        [user.userId]
-      );
-      sendJSON(res, 200, { decks: result.rows });
+      if (deckId) {
+        // Get single deck with content
+        const result = await pool.query(
+          'SELECT id, title, content, thumbnail, is_public, share_slug, created_at, updated_at FROM decks WHERE id = $1 AND user_id = $2',
+          [deckId, user.userId]
+        );
+        if (result.rows.length === 0) {
+          sendJSON(res, 404, { error: 'Deck not found' });
+        } else {
+          sendJSON(res, 200, { deck: result.rows[0] });
+        }
+      } else {
+        // List all user's decks (without content for performance)
+        const result = await pool.query(
+          'SELECT id, title, thumbnail, is_public, share_slug, created_at, updated_at FROM decks WHERE user_id = $1 ORDER BY updated_at DESC',
+          [user.userId]
+        );
+        sendJSON(res, 200, { decks: result.rows });
+      }
     } catch (err) {
       console.error('Get decks error:', err);
       sendJSON(res, 500, { error: 'Server error' });
@@ -31,25 +46,26 @@ module.exports = async (req, res) => {
     const { id, title, content, thumbnail } = body;
 
     try {
+      // Try update first (works for existing UUID decks)
       if (id) {
-        // Update existing deck (verify ownership)
         const result = await pool.query(
           'UPDATE decks SET title = $1, content = $2, thumbnail = $3 WHERE id = $4 AND user_id = $5 RETURNING id, title, thumbnail, is_public, share_slug, created_at, updated_at',
           [title || 'Untitled', content || '', thumbnail || null, id, user.userId]
         );
-        if (result.rows.length === 0) {
-          sendJSON(res, 404, { error: 'Deck not found or not owned by you' });
+        if (result.rows.length > 0) {
+          sendJSON(res, 200, { deck: result.rows[0] });
           return;
         }
-        sendJSON(res, 200, { deck: result.rows[0] });
-      } else {
-        // Create new deck
-        const result = await pool.query(
-          'INSERT INTO decks (user_id, title, content, thumbnail) VALUES ($1, $2, $3, $4) RETURNING id, title, thumbnail, is_public, share_slug, created_at, updated_at',
-          [user.userId, title || 'Untitled', content || '', thumbnail || null]
-        );
-        sendJSON(res, 201, { deck: result.rows[0] });
+        // No rows matched — either wrong owner or ID is a client-generated string.
+        // Fall through to create a new deck.
       }
+
+      // Create new deck (database generates the UUID)
+      const result = await pool.query(
+        'INSERT INTO decks (user_id, title, content, thumbnail) VALUES ($1, $2, $3, $4) RETURNING id, title, thumbnail, is_public, share_slug, created_at, updated_at',
+        [user.userId, title || 'Untitled', content || '', thumbnail || null]
+      );
+      sendJSON(res, 201, { deck: result.rows[0] });
     } catch (err) {
       console.error('Save deck error:', err);
       sendJSON(res, 500, { error: 'Server error' });

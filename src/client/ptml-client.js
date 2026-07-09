@@ -212,7 +212,11 @@
         });
         if (resp.ok) {
           var data = await resp.json();
-          return data.deck;
+          // Update deck with server-generated UUID (first save)
+          if (data.deck && data.deck.id && data.deck.id !== deck.id) {
+            deck.id = data.deck.id;
+          }
+          return data.deck || deck;
         }
       } catch (e) { /* fall through */ }
     }
