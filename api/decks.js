@@ -15,15 +15,20 @@ module.exports = async (req, res) => {
     const deckId = req.query.id;
     try {
       if (deckId) {
-        // Get single deck with content
-        const result = await pool.query(
-          'SELECT id, title, content, thumbnail, is_public, share_slug, created_at, updated_at FROM decks WHERE id = $1 AND user_id = $2',
-          [deckId, user.userId]
-        );
-        if (result.rows.length === 0) {
+        // Validate UUID to avoid Postgres errors
+        if (!UUID_RE.test(deckId)) {
           sendJSON(res, 404, { error: 'Deck not found' });
         } else {
-          sendJSON(res, 200, { deck: result.rows[0] });
+          // Get single deck with content
+          const result = await pool.query(
+            'SELECT id, title, content, thumbnail, is_public, share_slug, created_at, updated_at FROM decks WHERE id = $1 AND user_id = $2',
+            [deckId, user.userId]
+          );
+          if (result.rows.length === 0) {
+            sendJSON(res, 404, { error: 'Deck not found' });
+          } else {
+            sendJSON(res, 200, { deck: result.rows[0] });
+          }
         }
       } else {
         // List all user's decks (without content for performance)
@@ -45,9 +50,12 @@ module.exports = async (req, res) => {
     const body = getBody(req);
     const { id, title, content, thumbnail } = body;
 
+    // Check if id is a valid UUID before attempting UPDATE
+    const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
     try {
-      // Try update first (works for existing UUID decks)
-      if (id) {
+      // Try update first (only if id looks like a UUID)
+      if (id && UUID_RE.test(id)) {
         const result = await pool.query(
           'UPDATE decks SET title = $1, content = $2, thumbnail = $3 WHERE id = $4 AND user_id = $5 RETURNING id, title, thumbnail, is_public, share_slug, created_at, updated_at',
           [title || 'Untitled', content || '', thumbnail || null, id, user.userId]
@@ -56,8 +64,7 @@ module.exports = async (req, res) => {
           sendJSON(res, 200, { deck: result.rows[0] });
           return;
         }
-        // No rows matched — either wrong owner or ID is a client-generated string.
-        // Fall through to create a new deck.
+        // No rows matched — fall through to create
       }
 
       // Create new deck (database generates the UUID)
@@ -78,6 +85,12 @@ module.exports = async (req, res) => {
     const deckId = req.query.id;
     if (!deckId) {
       sendJSON(res, 400, { error: 'Deck id is required' });
+      return;
+    }
+
+    // Validate UUID to avoid Postgres errors
+    if (!UUID_RE.test(deckId)) {
+      sendJSON(res, 404, { error: 'Deck not found' });
       return;
     }
 
