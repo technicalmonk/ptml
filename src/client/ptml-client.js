@@ -217,8 +217,15 @@
             deck.id = data.deck.id;
           }
           return data.deck || deck;
+        } else {
+          // API returned error — throw so caller knows
+          var err = await resp.json().catch(function() { return { error: 'Server error' }; });
+          throw new Error(err.error || 'Save failed');
         }
-      } catch (e) { /* fall through */ }
+      } catch (e) {
+        // Re-throw so builder can show error (don't silently fall back)
+        throw e;
+      }
     }
 
     // Fallback: localStorage
