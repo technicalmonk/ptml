@@ -28,7 +28,7 @@ const planBadge = document.getElementById('plan-badge');
 function init() {
   // Init user if not set
   if (!PTMLClient.getUser()) {
-    PTMLClient.setUser({ id: 'user_' + Date.now(), plan: 'free', name: 'Guest' });
+    PTMLClient.setUser({ id: 'user_' + Date.now(), name: 'Guest' });
   }
   updatePlanBadge();
 
@@ -38,7 +38,6 @@ function init() {
   document.getElementById('nav-fonts').onclick = () => switchView('fonts');
   document.getElementById('nav-analytics').onclick = () => switchView('analytics');
   document.getElementById('nav-export').onclick = () => switchView('export');
-  document.getElementById('nav-upgrade').onclick = () => showUpgradeModal();
 
   // Brand logo → dashboard
   document.querySelector('.sidebar .brand').onclick = () => goDashboard();
@@ -171,28 +170,18 @@ function renderSlidesPanel() {
 
 function renderThemePanel() {
   panelHeader.textContent = 'Theme';
-  const available = PTMLClient.getAvailableThemes();
   const all = PTMLClient.ALL_THEMES;
   const currentTheme = currentDeck ? extractTheme(currentDeck.content) : 'minimal-white';
 
   let html = '<div class="theme-grid">';
   all.forEach(theme => {
-    const isAvailable = available.includes(theme);
     const isActive = theme === currentTheme;
-    html += `<div class="theme-chip ${isActive ? 'active' : ''} ${!isAvailable ? 'locked' : ''}"
-      onclick="${isAvailable ? `setTheme('${theme}')` : `showUpgradeModal()`}">
+    html += `<div class="theme-chip ${isActive ? 'active' : ''}"
+      onclick="setTheme('${theme}')">
       ${theme.replace(/-/g, ' ')}
     </div>`;
   });
   html += '</div>';
-
-  if (!PTMLClient.isPro()) {
-    html += `<div class="upgrade-banner">
-      <h3>🔒 ${all.length - available.length} themes locked</h3>
-      <p>Upgrade to Pro for all 36 themes</p>
-      <button onclick="showUpgradeModal()">Upgrade to Pro</button>
-    </div>`;
-  }
 
   panelBody.innerHTML = html;
 }
@@ -283,11 +272,6 @@ function renderAnalyticsPanel() {
       html += `<tr><td>${v.date}</td><td>${v.time}</td></tr>`;
     });
     html += '</tbody></table>';
-    html += `<div class="upgrade-banner">
-      <h3>📊 Enriched Analytics</h3>
-      <p>See viewer IDs, slide-level tracking, and trends with Pro</p>
-      <button onclick="showUpgradeModal()">Upgrade to Pro</button>
-    </div>`;
   }
 
   panelBody.innerHTML = html;
@@ -300,7 +284,6 @@ function renderExportPanel() {
     return;
   }
 
-  const limits = PTMLClient.getLimits();
   let html = '<div style="display:flex;flex-direction:column;gap:12px">';
 
   // HTML export
@@ -315,11 +298,11 @@ function renderExportPanel() {
     <div style="font-size:11px;color:#555">All CSS/JS inlined — one self-contained file</div>
   </button>`;
 
-  // PDF (Pro only)
-  html += `<button onclick="${limits.canExportPDF ? `exportDeck('pdf')` : `showUpgradeModal()`}"
-    style="padding:14px;border:1px solid rgba(255,255,255,0.08);border-radius:10px;background:#1a1a1e;color:${limits.canExportPDF ? '#e0e0e6' : '#555'};font-size:13px;cursor:pointer;text-align:left">
-    <div style="font-weight:600;margin-bottom:2px">📄 Export as PDF ${limits.canExportPDF ? '' : '🔒'}</div>
-    <div style="font-size:11px;color:#555">${limits.canExportPDF ? 'Print-ready PDF document' : 'Pro feature — upgrade to unlock'}</div>
+  // PDF
+  html += `<button onclick="exportDeck('pdf')"
+    style="padding:14px;border:1px solid rgba(255,255,255,0.08);border-radius:10px;background:#1a1a1e;color:#e0e0e6;font-size:13px;cursor:pointer;text-align:left">
+    <div style="font-weight:600;margin-bottom:2px">📄 Export as PDF</div>
+    <div style="font-size:11px;color:#555">Print-ready PDF document</div>
   </button>`;
 
   // Share link
@@ -329,14 +312,6 @@ function renderExportPanel() {
   </button>`;
 
   html += '</div>';
-
-  if (!PTMLClient.isPro()) {
-    html += `<div class="upgrade-banner">
-      <h3>⭐ Pro Features</h3>
-      <p>PPTX import, PDF export, enriched analytics, design agent</p>
-      <button onclick="showUpgradeModal()">Upgrade to Pro</button>
-    </div>`;
-  }
 
   panelBody.innerHTML = html;
 }
@@ -404,22 +379,6 @@ function saveDeck() {
   if (!currentDeck) return;
   currentDeck.title = deckTitle.value;
   // Content is already synced by toolbar's onUpdate callback
-
-  // Check slide limit for free users
-  const limits = PTMLClient.getLimits();
-  const slideCount = countSlides(currentDeck.content);
-  if (slideCount > limits.maxSlides) {
-    showToast(`Free plan limit: ${limits.maxSlides} slides. You have ${slideCount}.`, 'error');
-    return;
-  }
-
-  // Check deck count limit
-  const decks = PTMLClient.getDecks();
-  const isNewDeck = !decks.find(d => d.id === currentDeck.id);
-  if (isNewDeck && decks.length >= limits.maxDecks) {
-    showToast(`Free plan limit: ${limits.maxDecks} decks. Upgrade for unlimited.`, 'error');
-    return;
-  }
 
   ThumbnailGen.updateDeckThumbnail(currentDeck);
   PTMLClient.saveDeck(currentDeck);
@@ -513,75 +472,19 @@ function copyShareLink() {
   });
 }
 
-// ── Freemium ───────────────────────────────────────────────────
+// ── Freemium (removed — all users get Pro) ────────────────────
 function togglePlan() {
-  const user = PTMLClient.getUser();
-  if (user.plan === 'free') {
-    showUpgradeModal();
-  } else {
-    user.plan = 'free';
-    PTMLClient.setUser(user);
-    updatePlanBadge();
-    showToast('Switched to Free plan', 'success');
-    switchView(currentView);
-  }
+  // No-op: all users are Pro
 }
 
 function showUpgradeModal() {
-  modalContent.innerHTML = `
-    <h2>⭐ Upgrade to PTML Pro</h2>
-    <p>Unlock the full power of HTML presentations.</p>
-    <div style="display:grid;gap:12px;margin-bottom:24px">
-      <div style="display:flex;gap:12px;align-items:start">
-        <span style="color:#3b6cff;font-size:18px">✓</span>
-        <div><strong>All 36 themes</strong><br><span style="color:#555;font-size:12px">30 additional premium themes</span></div>
-      </div>
-      <div style="display:flex;gap:12px;align-items:start">
-        <span style="color:#3b6cff;font-size:18px">✓</span>
-        <div><strong>PPTX Import & Conversion</strong><br><span style="color:#555;font-size:12px">Upload .pptx files, auto-convert to PTML</span></div>
-      </div>
-      <div style="display:flex;gap:12px;align-items:start">
-        <span style="color:#3b6cff;font-size:18px">✓</span>
-        <div><strong>Design Agent</strong><br><span style="color:#555;font-size:12px">AI-powered slide design suggestions</span></div>
-      </div>
-      <div style="display:flex;gap:12px;align-items:start">
-        <span style="color:#3b6cff;font-size:18px">✓</span>
-        <div><strong>Content Review Agent</strong><br><span style="color:#555;font-size:12px">AI reviews your deck for clarity & impact</span></div>
-      </div>
-      <div style="display:flex;gap:12px;align-items:start">
-        <span style="color:#3b6cff;font-size:18px">✓</span>
-        <div><strong>Enriched Analytics</strong><br><span style="color:#555;font-size:12px">Viewer tracking, slide-level data, trends</span></div>
-      </div>
-      <div style="display:flex;gap:12px;align-items:start">
-        <span style="color:#3b6cff;font-size:18px">✓</span>
-        <div><strong>PDF Export</strong><br><span style="color:#555;font-size:12px">Print-ready PDF documents</span></div>
-      </div>
-      <div style="display:flex;gap:12px;align-items:start">
-        <span style="color:#3b6cff;font-size:18px">✓</span>
-        <div><strong>Unlimited decks & slides</strong><br><span style="color:#555;font-size:12px">No limits on creativity</span></div>
-      </div>
-    </div>
-    <div style="text-align:center;padding:20px;background:rgba(59,108,255,0.08);border-radius:10px;margin-bottom:20px">
-      <div style="font-size:28px;font-weight:800;color:#3b6cff">$9<span style="font-size:14px;color:#555">/month</span></div>
-    </div>
-    <button onclick="upgradeToPro()" style="width:100%;padding:14px;border:none;border-radius:10px;background:linear-gradient(135deg,#3b6cff,#7a5cff);color:#fff;font-size:15px;font-weight:700;cursor:pointer">
-      Upgrade Now
-    </button>
-    <button onclick="closeModal()" style="width:100%;padding:10px;border:none;background:transparent;color:#555;font-size:13px;cursor:pointer;margin-top:8px">
-      Maybe later
-    </button>
-  `;
-  modalOverlay.classList.add('show');
+  // No-op: all features are free
+  closeModal();
 }
 
 function upgradeToPro() {
-  const user = PTMLClient.getUser();
-  user.plan = 'pro';
-  PTMLClient.setUser(user);
-  updatePlanBadge();
+  // No-op: all users are Pro
   closeModal();
-  showToast('Welcome to Pro! 🎉', 'success');
-  switchView(currentView);
 }
 
 function closeModal() {
@@ -591,15 +494,9 @@ function closeModal() {
 modalOverlay.onclick = (e) => { if (e.target === modalOverlay) closeModal(); };
 
 function updatePlanBadge() {
-  const plan = PTMLClient.getPlan();
-  planBadge.textContent = plan.toUpperCase();
-  if (plan === 'pro') {
-    planBadge.style.background = 'rgba(255,92,138,0.15)';
-    planBadge.style.color = '#ff5c8a';
-  } else {
-    planBadge.style.background = 'rgba(26,175,108,0.15)';
-    planBadge.style.color = '#1aaf6c';
-  }
+  planBadge.textContent = 'PRO';
+  planBadge.style.background = 'rgba(0,102,255,0.15)';
+  planBadge.style.color = '#0066ff';
 }
 
 // ── Pexels Image Search ───────────────────────────────────────

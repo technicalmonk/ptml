@@ -56,7 +56,7 @@
 <div class="nav">
   <div class="nav-logo">PTML</div>
   <div class="nav-right">
-    <span class="badge badge-free" id="plan-badge">Free</span>
+    <span class="badge badge-pro" id="plan-badge">PRO</span>
     <span class="user-name" id="user-name">User</span>
     <button class="btn btn-ghost btn-sm" onclick="logout()">Sign out</button>
   </div>
@@ -104,10 +104,8 @@ var user = PTMLClient.getUser();
 if (!user) { window.location.href = 'login.html'; }
 
 document.getElementById('user-name').textContent = user.name || 'User';
-document.getElementById('plan-badge').textContent = (user.plan || 'free').toUpperCase();
-if (user.plan === 'pro') {
-  document.getElementById('plan-badge').className = 'badge badge-pro';
-}
+document.getElementById('plan-badge').textContent = 'PRO';
+document.getElementById('plan-badge').className = 'badge badge-pro';
 
 // Inspiration decks (examples baked in)
 var inspirations = [

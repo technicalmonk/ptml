@@ -1,5 +1,6 @@
-// PTML Client — storage + analytics + freemium gating
+// PTML Client — storage + analytics
 // All client-side for now, backed by localStorage. Swappable for API later.
+// All users get full Pro features — no freemium gating.
 
 (function () {
   'use strict';
@@ -68,30 +69,21 @@
   }
 
   function setUser(user) {
+    // All users get pro — no freemium
+    if (user) user.plan = 'pro';
     localStorage.setItem(USER_KEY, JSON.stringify(user));
   }
 
   function getPlan() {
-    const user = getUser();
-    return user ? user.plan : 'free';
+    // Everyone is Pro — all features unlocked
+    return 'pro';
   }
 
   function isPro() {
-    return getPlan() === 'pro';
+    return true;
   }
 
-  const FREE_LIMITS = {
-    maxSlides: 10,
-    maxDecks: 3,
-    themes: ['minimal-white', 'pitch-deck-vc', 'dracula', 'tokyo-night', 'aurora', 'corporate-clean'],
-    canExportPDF: false,
-    canImportPPTX: false,
-    canUseDesignAgent: false,
-    canUseReviewAgent: false,
-    analyticsLevel: 'basic',
-  };
-
-  const PRO_LIMITS = {
+  const PLAN_LIMITS = {
     maxSlides: Infinity,
     maxDecks: Infinity,
     themes: null, // null = all themes
@@ -103,13 +95,11 @@
   };
 
   function getLimits() {
-    return isPro() ? PRO_LIMITS : FREE_LIMITS;
+    return PLAN_LIMITS;
   }
 
   function getAvailableThemes() {
-    const limits = getLimits();
-    if (!limits.themes) return ALL_THEMES;
-    return limits.themes;
+    return ALL_THEMES;
   }
 
   // ── Deck Storage ──────────────────────────────────────────────
@@ -178,24 +168,8 @@
   function getAnalyticsSummary(deckId) {
     const data = getAnalytics(deckId);
     const views = data.views || [];
-    const plan = getPlan();
 
-    if (plan === 'free') {
-      // Free: only view count + date/time
-      return {
-        totalViews: views.length,
-        uniqueViewers: data.uniqueViewers,
-        lastViewed: views.length > 0 ? views[views.length - 1].timestamp : null,
-        level: 'basic',
-        // Mask viewer details for free users
-        recentViews: views.slice(-5).map(v => ({
-          date: v.timestamp.split('T')[0],
-          time: v.timestamp.split('T')[1].split('.')[0],
-        })),
-      };
-    }
-
-    // Pro: enriched analytics
+    // All users get enriched analytics
     const byDay = {};
     views.forEach(v => {
       const day = v.timestamp.split('T')[0];

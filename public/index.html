@@ -4,65 +4,46 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PTML — HTML Presentations for the Post-PPTX Era</title>
+<link rel="stylesheet" href="design-system.css">
 <style>
-* { margin:0; padding:0; box-sizing:border-box; }
-body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,sans-serif;
-  background:#0a0a0c; color:#e0e0e6; line-height:1.6; }
-a { color:#3b6cff; text-decoration:none; }
-a:hover { text-decoration:underline; }
-
-/* Hero */
 .hero { min-height:100vh; display:flex; flex-direction:column; align-items:center;
   justify-content:center; text-align:center; padding:40px; position:relative; overflow:hidden; }
 .hero::before { content:''; position:absolute; inset:0;
-  background:radial-gradient(ellipse at 50% 0%, rgba(59,108,255,0.08), transparent 70%); }
+  background:radial-gradient(ellipse at 50% 0%, rgba(0,102,255,0.05), transparent 70%); }
 .hero-content { position:relative; z-index:1; max-width:720px; }
-.logo { font-size:4.5rem; font-weight:900; letter-spacing:-0.04em;
-  background:linear-gradient(135deg,#3b6cff,#7a5cff 55%,#ff5c8a);
-  -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
-  color:transparent; margin-bottom:12px; }
-.tagline { font-size:1.4rem; color:#8a8f9e; margin-bottom:40px; }
+.logo { font-size:4rem; font-weight:900; letter-spacing:-0.04em; color:var(--c-text);
+  margin-bottom:12px; }
+.tagline { font-size:1.4rem; color:var(--c-text-2); margin-bottom:40px; }
 .cta-row { display:flex; gap:16px; justify-content:center; flex-wrap:wrap; }
-.btn { padding:14px 32px; border-radius:12px; border:none; font-size:1rem;
-  font-weight:600; cursor:pointer; transition:all .2s; text-decoration:none; display:inline-block; }
-.btn-primary { background:linear-gradient(135deg,#3b6cff,#7a5cff); color:#fff; }
-.btn-primary:hover { opacity:0.9; text-decoration:none; }
-.btn-secondary { background:rgba(255,255,255,0.06); color:#e0e0e6;
-  border:1px solid rgba(255,255,255,0.1); }
-.btn-secondary:hover { background:rgba(255,255,255,0.1); text-decoration:none; }
+.hero-note { color:var(--c-text-3); font-size:0.85rem; margin-top:24px; }
 
-/* Features */
 .features { padding:80px 40px; max-width:960px; margin:0 auto; }
 .features h2 { text-align:center; font-size:2rem; margin-bottom:48px; }
 .feature-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:24px; }
-.feature { padding:24px; background:rgba(255,255,255,0.03);
-  border:1px solid rgba(255,255,255,0.06); border-radius:16px; }
+.feature { padding:24px; background:var(--c-surface); border:1px solid var(--c-border);
+  border-radius:var(--radius-lg); box-shadow:var(--shadow-sm); }
+.feature:hover { border-color:var(--c-border-hov); box-shadow:var(--shadow); }
 .feature-icon { font-size:28px; margin-bottom:12px; }
 .feature h3 { font-size:1.1rem; margin-bottom:8px; }
-.feature p { color:#8a8f9e; font-size:0.9rem; }
+.feature p { color:var(--c-text-2); font-size:0.9rem; }
 
-/* Pricing */
 .pricing { padding:80px 40px; max-width:960px; margin:0 auto; }
 .pricing h2 { text-align:center; font-size:2rem; margin-bottom:48px; }
-.pricing-grid { display:grid; grid-template-columns:1fr 1fr; gap:24px; }
-@media(max-width:768px) { .pricing-grid { grid-template-columns:1fr; } }
-.plan { padding:32px; border-radius:16px; border:1px solid rgba(255,255,255,0.08); }
-.plan-free { background:rgba(255,255,255,0.02); }
-.plan-pro { background:rgba(59,108,255,0.05); border-color:rgba(59,108,255,0.2); position:relative; }
-.plan-pro::before { content:'Most Popular'; position:absolute; top:-12px; left:50%;
-  transform:translateX(-50%); background:linear-gradient(135deg,#3b6cff,#7a5cff);
-  color:#fff; font-size:11px; font-weight:700; padding:4px 16px; border-radius:20px; }
+.pricing-card { max-width:480px; margin:0 auto; padding:40px; background:var(--c-surface);
+  border:1px solid var(--c-border); border-radius:var(--radius-lg);
+  box-shadow:var(--shadow); text-align:center; position:relative; }
+.pricing-card::before { content:'Free Forever'; position:absolute; top:-12px; left:50%;
+  transform:translateX(-50%); background:var(--c-accent); color:#fff;
+  font-size:11px; font-weight:700; padding:4px 16px; border-radius:20px; }
 .plan-name { font-size:1.3rem; font-weight:700; margin-bottom:8px; }
 .plan-price { font-size:2.5rem; font-weight:900; margin-bottom:24px; }
-.plan-price span { font-size:0.9rem; font-weight:400; color:#555; }
-.plan-features { list-style:none; padding:0; margin:0 0 32px; }
-.plan-features li { padding:8px 0; color:#aaa; font-size:0.9rem; }
-.plan-features li::before { content:'✓ '; color:#3b6cff; font-weight:700; }
-.plan-features li.locked::before { content:'🔒 '; color:#555; }
+.plan-price span { font-size:0.9rem; font-weight:400; color:var(--c-text-3); }
+.plan-features { list-style:none; padding:0; margin:0 0 32px; text-align:left; }
+.plan-features li { padding:8px 0; color:var(--c-text-2); font-size:0.9rem; }
+.plan-features li::before { content:'✓ '; color:var(--c-accent); font-weight:700; }
 
-/* Footer */
-.footer { text-align:center; padding:40px; color:#444; font-size:0.85rem;
-  border-top:1px solid rgba(255,255,255,0.04); }
+.footer { text-align:center; padding:40px; color:var(--c-text-3); font-size:0.85rem;
+  border-top:1px solid var(--c-border); }
 </style>
 </head>
 <body>
@@ -72,10 +53,10 @@ a:hover { text-decoration:underline; }
     <div class="logo">PTML</div>
     <p class="tagline">HTML-based presentations for the post-PPTX era</p>
     <div class="cta-row">
-      <a href="../src/builder/builder.html" class="btn btn-primary">Start Building →</a>
-      <a href="../public/viewer.html" class="btn btn-secondary">View Example Deck</a>
+      <a href="../src/builder/builder.html" class="btn btn-primary btn-lg">Start Building</a>
+      <a href="../public/viewer.html" class="btn btn-secondary btn-lg">View Example Deck</a>
     </div>
-    <p style="color:#444;font-size:0.85rem;margin-top:24px">No signup required. Start writing decks in Markdown.</p>
+    <p class="hero-note">No signup required. All features free. Start writing decks in Markdown.</p>
   </div>
 </div>
 
@@ -103,48 +84,34 @@ a:hover { text-decoration:underline; }
       <p>Write in Markdown, see instant preview. Real-time, no compile step.</p>
     </div>
     <div class="feature">
-      <div class="feature-icon">🔒</div>
-      <h3>Secure</h3>
-      <p>No macro-enabled files. No executable content. Just HTML.</p>
+      <div class="feature-icon">🎨</div>
+      <h3>36 Themes</h3>
+      <p>From minimal-white to cyberpunk-neon. Switch themes live with a single keypress.</p>
     </div>
     <div class="feature">
       <div class="feature-icon">📊</div>
       <h3>Analytics</h3>
-      <p>Track who viewed your presentation, when, and how many times.</p>
+      <p>Track who viewed your presentation, when, and how many times. Enriched data for everyone.</p>
     </div>
   </div>
 </div>
 
 <div class="pricing">
   <h2>Pricing</h2>
-  <div class="pricing-grid">
-    <div class="plan plan-free">
-      <div class="plan-name">Free</div>
-      <div class="plan-price">$0<span>/forever</span></div>
-      <ul class="plan-features">
-        <li>Basic slide editing</li>
-        <li>Up to 3 decks, 10 slides each</li>
-        <li>6 themes</li>
-        <li>Export to HTML</li>
-        <li>Basic analytics (view count)</li>
-      </ul>
-      <a href="../src/builder/builder.html" class="btn btn-secondary" style="width:100%;text-align:center">Get Started Free</a>
-    </div>
-    <div class="plan plan-pro">
-      <div class="plan-name">Pro</div>
-      <div class="plan-price">$9<span>/month</span></div>
-      <ul class="plan-features">
-        <li>Everything in Free</li>
-        <li>Unlimited decks & slides</li>
-        <li>All 36 themes</li>
-        <li>PPTX Import & Conversion Agent</li>
-        <li>Design Agent</li>
-        <li>Content Review Agent</li>
-        <li>Enriched analytics (viewer tracking)</li>
-        <li>PDF export</li>
-      </ul>
-      <a href="../src/builder/builder.html" class="btn btn-primary" style="width:100%;text-align:center">Upgrade to Pro</a>
-    </div>
+  <div class="pricing-card">
+    <div class="plan-name">PTML</div>
+    <div class="plan-price">$0<span>/forever</span></div>
+    <ul class="plan-features">
+      <li>Unlimited decks & slides</li>
+      <li>All 36 themes</li>
+      <li>Markdown + Rich Text editor</li>
+      <li>Stock photo search (Pexels)</li>
+      <li>Export to HTML, embed, or PDF</li>
+      <li>Enriched analytics (viewer tracking)</li>
+      <li>Presenter mode with speaker notes</li>
+      <li>47 animations (27 CSS + 20 canvas FX)</li>
+    </ul>
+    <a href="../src/builder/builder.html" class="btn btn-primary btn-lg" style="width:100%;justify-content:center">Get Started Free</a>
   </div>
 </div>
 

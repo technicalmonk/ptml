@@ -99,7 +99,7 @@ function doLogin() {
     showMsg('msg', 'Invalid credentials.', 'error');
     return;
   }
-  PTMLClient.setUser({ id: 'user_' + email.replace(/[^a-z0-9]/g,''), plan: 'free', name: email.split('@')[0], email: email });
+  PTMLClient.setUser({ id: 'user_' + email.replace(/[^a-z0-9]/g,''), name: email.split('@')[0], email: email });
   window.location.href = 'dashboard.html';
 }
 
@@ -115,7 +115,7 @@ function doSignup() {
     showMsg('msg2', 'Password must be at least 6 characters.', 'error');
     return;
   }
-  PTMLClient.setUser({ id: 'user_' + email.replace(/[^a-z0-9]/g,''), plan: 'free', name: name, email: email });
+  PTMLClient.setUser({ id: 'user_' + email.replace(/[^a-z0-9]/g,''), name: name, email: email });
   window.location.href = 'dashboard.html';
 }
 

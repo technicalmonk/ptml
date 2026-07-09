@@ -4,93 +4,73 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PTML Viewer</title>
+  <link rel="stylesheet" href="design-system.css">
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
-      background: #0a0a0c;
-      color: #e0e0e6;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .container { max-width: 900px; width: 100%; padding: 60px 40px; }
-    .logo {
-      font-size: 3rem; font-weight: 900; letter-spacing: -0.03em;
-      background: linear-gradient(135deg, #3b6cff, #7a5cff 55%, #ff5c8a);
-      -webkit-background-clip: text; background-clip: text;
-      -webkit-text-fill-color: transparent; color: transparent;
-      margin-bottom: 8px;
-    }
-    .subtitle { color: #8a8f9e; font-size: 1.1rem; margin-bottom: 40px; }
-    .input-row { display: flex; gap: 12px; margin-bottom: 30px; }
-    input[type="text"] {
-      flex: 1; padding: 14px 18px; border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 12px; background: rgba(255,255,255,0.05); color: #e0e0e6;
-      font-size: 1rem; outline: none; transition: border-color 0.2s;
-    }
-    input[type="text"]:focus { border-color: #3b6cff; }
-    button {
-      padding: 14px 28px; border: none; border-radius: 12px;
-      background: linear-gradient(135deg, #3b6cff, #7a5cff);
-      color: white; font-size: 1rem; font-weight: 600; cursor: pointer;
-      transition: opacity 0.2s;
-    }
-    button:hover { opacity: 0.9; }
-    .hint { color: #555; font-size: 0.85rem; margin-top: 8px; }
-    .examples { margin-top: 40px; }
-    .examples h3 { font-size: 1rem; color: #8a8f9e; margin-bottom: 16px; font-weight: 500; }
-    .example-list { display: flex; flex-direction: column; gap: 8px; }
+    .viewer-page { min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px; }
+    .viewer-card { width:100%; max-width:640px; background:var(--c-surface);
+      border:1px solid var(--c-border); border-radius:var(--radius-lg);
+      padding:40px; box-shadow:var(--shadow); }
+    .logo { font-size:2rem; font-weight:900; letter-spacing:-0.03em; color:var(--c-text);
+      margin-bottom:4px; }
+    .subtitle { color:var(--c-text-2); font-size:1rem; margin-bottom:32px; }
+    .input-row { display:flex; gap:8px; margin-bottom:12px; }
+    .input-row .input { flex:1; }
+    .hint { color:var(--c-text-3); font-size:0.85rem; margin-top:4px; margin-bottom:24px; }
+    .examples h3 { font-size:0.9rem; color:var(--c-text-2); margin-bottom:12px; font-weight:500; }
+    .example-list { display:flex; flex-direction:column; gap:8px; }
     .example-item {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 14px 18px; border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 10px; text-decoration: none; color: inherit;
-      transition: all 0.2s; cursor: pointer;
+      display:flex; align-items:center; justify-content:space-between;
+      padding:14px 18px; border:1px solid var(--c-border);
+      border-radius:var(--radius); text-decoration:none; color:var(--c-text);
+      transition:all 0.15s var(--ease); cursor:pointer; background:var(--c-surface);
     }
-    .example-item:hover { border-color: rgba(59,108,255,0.4); background: rgba(59,108,255,0.05); }
-    .example-name { font-weight: 600; }
-    .example-meta { font-size: 0.85rem; color: #555; }
-    .error { color: #e0445a; font-size: 0.9rem; margin-top: 12px; display: none; }
+    .example-item:hover { border-color:var(--c-accent); background:var(--c-accent-subtle); }
+    .example-name { font-weight:600; }
+    .example-meta { font-size:0.85rem; color:var(--c-text-3); }
+    .error { color:var(--c-red); font-size:0.9rem; margin-top:12px; display:none;
+      padding:10px 12px; background:#fef2f2; border:1px solid #fecaca;
+      border-radius:var(--radius); }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="logo">PTML</div>
-    <p class="subtitle">Viewer — load any PTML markdown deck</p>
+  <div class="viewer-page">
+    <div class="viewer-card">
+      <div class="logo">PTML</div>
+      <p class="subtitle">Viewer — load any PTML markdown deck</p>
 
-    <div class="input-row">
-      <input type="text" id="deck-url" placeholder="path/to/deck.md or URL" value="">
-      <button onclick="loadDeck()">Open Deck</button>
-    </div>
-    <p class="hint">Enter a .md file path or URL. The viewer will parse and render it live.</p>
-    <div class="error" id="error"></div>
+      <div class="input-row">
+        <input class="input" type="text" id="deck-url" placeholder="path/to/deck.md or URL" value="">
+        <button class="btn btn-primary" onclick="loadDeck()">Open Deck</button>
+      </div>
+      <p class="hint">Enter a .md file path or URL. The viewer will parse and render it live.</p>
+      <div class="error" id="error"></div>
 
-    <div class="examples" id="examples">
-      <h3>Example Decks</h3>
-      <div class="example-list" id="example-list"></div>
+      <div class="examples" id="examples">
+        <h3>Example Decks</h3>
+        <div class="example-list" id="example-list"></div>
+      </div>
     </div>
   </div>
 
   <script src="../src/parser/ptml-parser.js"></script>
   <script src="../src/parser/ptml-loader.js"></script>
   <script>
-     // Auto-detect ?deck= URL parameter
-    const params = new URLSearchParams(location.search);
-    const deckParam = params.get('deck');
+    // Auto-detect ?deck= URL parameter
+    var params = new URLSearchParams(location.search);
+    var deckParam = params.get('deck');
     if (deckParam) {
       document.getElementById('deck-url').value = deckParam;
       loadDeck();
     }
 
     // Load example list
-    const examples = [
+    var examples = [
       { name: 'PTML Overview', file: '../examples/ptml-overview.md', desc: '5 slides — cover, features, roadmap, pricing, CTA' },
       { name: 'PTML Overview (Embed)', file: '../examples/ptml-overview-embed.html', desc: 'Same deck, pre-built as single HTML file' }
     ];
-    const list = document.getElementById('example-list');
-    examples.forEach(ex => {
-      const a = document.createElement('a');
+    var list = document.getElementById('example-list');
+    examples.forEach(function(ex) {
+      var a = document.createElement('a');
       a.className = 'example-item';
       a.href = ex.file;
       a.innerHTML = '<span class="example-name">' + ex.name + '</span><span class="example-meta">' + ex.desc + '</span>';
@@ -98,8 +78,8 @@
     });
 
     function loadDeck() {
-      const url = document.getElementById('deck-url').value.trim();
-      const errEl = document.getElementById('error');
+      var url = document.getElementById('deck-url').value.trim();
+      var errEl = document.getElementById('error');
       errEl.style.display = 'none';
 
       if (!url) { errEl.textContent = 'Please enter a deck path or URL.'; errEl.style.display = 'block'; return; }
@@ -112,7 +92,8 @@
       // Use PTML loader to render inline
       PTMLLoader.loadDeck(url, document.documentElement, {
         basePath: '../src/engine'
-      });    }
+      });
+    }
   </script>
 </body>
 </html>
