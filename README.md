@@ -6,7 +6,7 @@ HTML-based presentations for the post-PPTX era. Write decks in Markdown, render 
 
 ```bash
 # Clone
-git clone https://github.com/YOUR_ORG/ptml.git
+git clone https://github.com/technicalmonk/ptml.git
 cd ptml
 
 # Build a deck from Markdown
