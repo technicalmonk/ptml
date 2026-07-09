@@ -55,27 +55,56 @@
   <script src="src/parser/ptml-parser.js"></script>
   <script src="src/parser/ptml-loader.js"></script>
   <script>
-    // Auto-detect ?deck= URL parameter
+    // Auto-detect URL parameters: ?deck=path.md or ?data=base64markdown
     var params = new URLSearchParams(location.search);
     var deckParam = params.get('deck');
-    if (deckParam) {
-      document.getElementById('deck-url').value = deckParam;
-      loadDeck();
-    }
+    var dataParam = params.get('data');
 
-    // Load example list
+    // Load example list — all .md files, clicked to load in-viewer (not navigate away)
     var examples = [
       { name: 'PTML Overview', file: 'examples/ptml-overview.md', desc: '5 slides — cover, features, roadmap, pricing, CTA' },
-      { name: 'PTML Overview (Embed)', file: 'examples/ptml-overview-embed.html', desc: 'Same deck, pre-built as single HTML file' }
+      { name: 'Code Showcase', file: 'examples/code-showcase.md', desc: 'Developer-focused with code blocks (4 slides)' },
+      { name: 'Minimal Deck', file: 'examples/minimal-deck.md', desc: 'Clean, no directives, auto-layout (4 slides)' },
     ];
     var list = document.getElementById('example-list');
     examples.forEach(function(ex) {
       var a = document.createElement('a');
       a.className = 'example-item';
-      a.href = ex.file;
+      a.href = 'viewer.html?deck=' + encodeURIComponent(ex.file);
       a.innerHTML = '<span class="example-name">' + ex.name + '</span><span class="example-meta">' + ex.desc + '</span>';
       list.appendChild(a);
     });
+
+    if (dataParam) {
+      // Shared deck: base64-encoded markdown in the URL
+      try {
+        var md = decodeURIComponent(escape(atob(dataParam)));
+        var parsed = PTML.parse(md);
+        var html = PTML.buildHTML(parsed, { basePath: 'src/engine' });
+        document.open();
+        document.write(html);
+        document.close();
+        // Load runtime scripts
+        var s1 = document.createElement('script');
+        s1.src = 'src/engine/runtime.js';
+        s1.onload = function() {
+          var s2 = document.createElement('script');
+          s2.src = 'src/engine/animations/fx-runtime.js';
+          s2.onload = function() {
+            window.dispatchEvent(new Event('DOMContentLoaded'));
+          };
+          document.head.appendChild(s2);
+        };
+        document.head.appendChild(s1);
+      } catch (e) {
+        var errEl = document.getElementById('error');
+        errEl.textContent = 'Failed to decode shared deck: ' + e.message;
+        errEl.style.display = 'block';
+      }
+    } else if (deckParam) {
+      document.getElementById('deck-url').value = deckParam;
+      loadDeck();
+    }
 
     function loadDeck() {
       var url = document.getElementById('deck-url').value.trim();
@@ -83,11 +112,6 @@
       errEl.style.display = 'none';
 
       if (!url) { errEl.textContent = 'Please enter a deck path or URL.'; errEl.style.display = 'block'; return; }
-
-      if (url.endsWith('.html')) {
-        window.location.href = url;
-        return;
-      }
 
       // Use PTML loader to render inline
       PTMLLoader.loadDeck(url, document.documentElement, {

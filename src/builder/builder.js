@@ -463,12 +463,19 @@ function exportDeck(format) {
 
 function copyShareLink() {
   if (!currentDeck) return;
-  const url = location.origin + '/public/viewer.html?deck=' + currentDeck.id;
-  // For now, copy to clipboard
+  // Encode deck content as base64 in the URL so the viewer can render it
+  // without any server-side storage. Works cross-device.
+  var md = currentDeck.content || '';
+  var b64 = btoa(unescape(encodeURIComponent(md)));
+  var url = location.origin + '/viewer.html?data=' + b64;
   navigator.clipboard.writeText(url).then(() => {
-    showToast('Share link copied: ' + url.substring(0, 50) + '...', 'success');
+    showToast('Share link copied to clipboard', 'success');
   }).catch(() => {
-    showToast('Share link: ' + url, 'success');
+    // Fallback: show the link in a modal for manual copy
+    modalContent.innerHTML = '<h2>🔗 Share Link</h2><p>Copy this link to share your deck:</p>' +
+      '<textarea style="width:100%;height:80px;font-family:monospace;font-size:11px;padding:10px;border:1px solid var(--c-border);border-radius:8px;background:var(--c-surface-hov);color:var(--c-text);resize:none" readonly>' + url + '</textarea>' +
+      '<button onclick="closeModal()" class="btn btn-secondary" style="margin-top:12px">Close</button>';
+    modalOverlay.classList.add('show');
   });
 }
 
