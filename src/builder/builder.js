@@ -278,29 +278,16 @@ function renderExportPanel() {
 
   let html = '<div style="display:flex;flex-direction:column;gap:12px">';
 
-  // HTML export
-  html += `<button onclick="exportDeck('html')" style="padding:14px;border:1px solid rgba(255,255,255,0.08);border-radius:10px;background:#1a1a1e;color:#e0e0e6;font-size:13px;cursor:pointer;text-align:left">
-    <div style="font-weight:600;margin-bottom:2px">📄 Export as HTML</div>
-    <div style="font-size:11px;color:#555">Standalone .html file with external assets</div>
-  </button>`;
-
-  // Embed (single file)
-  html += `<button onclick="exportDeck('embed')" style="padding:14px;border:1px solid rgba(255,255,255,0.08);border-radius:10px;background:#1a1a1e;color:#e0e0e6;font-size:13px;cursor:pointer;text-align:left">
-    <div style="font-weight:600;margin-bottom:2px">📦 Export as Single File (Embed)</div>
-    <div style="font-size:11px;color:#555">All CSS/JS inlined — one self-contained file</div>
-  </button>`;
-
-  // PDF
-  html += `<button onclick="exportDeck('pdf')"
-    style="padding:14px;border:1px solid rgba(255,255,255,0.08);border-radius:10px;background:#1a1a1e;color:#e0e0e6;font-size:13px;cursor:pointer;text-align:left">
-    <div style="font-weight:600;margin-bottom:2px">📄 Export as PDF</div>
-    <div style="font-size:11px;color:#555">Print-ready PDF document</div>
-  </button>`;
-
-  // Share link
-  html += `<button onclick="copyShareLink()" style="padding:14px;border:1px solid rgba(255,255,255,0.08);border-radius:10px;background:#1a1a1e;color:#e0e0e6;font-size:13px;cursor:pointer;text-align:left">
+  // Share link (top)
+  html += `<button onclick="copyShareLink()" style="padding:14px;border:1px solid rgba(59,108,255,0.2);border-radius:10px;background:rgba(59,108,255,0.05);color:#e0e0e6;font-size:13px;cursor:pointer;text-align:left">
     <div style="font-weight:600;margin-bottom:2px">🔗 Copy Share Link</div>
     <div style="font-size:11px;color:#555">Share a link to the live viewer</div>
+  </button>`;
+
+  // Export as Markdown
+  html += `<button onclick="exportDeck('markdown')" style="padding:14px;border:1px solid rgba(255,255,255,0.08);border-radius:10px;background:#1a1a1e;color:#e0e0e6;font-size:13px;cursor:pointer;text-align:left">
+    <div style="font-weight:600;margin-bottom:2px">📄 Export as Markdown</div>
+    <div style="font-size:11px;color:#555">Download the .md source file</div>
   </button>`;
 
   html += '</div>';
@@ -455,14 +442,17 @@ function exportDeck(format) {
   if (!currentDeck) return;
   const theme = extractTheme(currentDeck.content) || 'minimal-white';
 
-  if (format === 'html' || format === 'embed') {
+  if (format === 'markdown') {
+    const blob = new Blob([currentDeck.content || ''], { type: 'text/markdown' });
+    downloadBlob(blob, (currentDeck.title || 'deck').replace(/[^a-z0-9-]/gi, '-') + '.md');
+    showToast('Exported as Markdown', 'success');
+  } else if (format === 'html' || format === 'embed') {
     const parsed = PTML.parse(currentDeck.content);
     const html = PTML.buildHTML(parsed, { basePath: '.', theme: theme });
     const blob = new Blob([html], { type: 'text/html' });
     downloadBlob(blob, (currentDeck.title || 'deck').replace(/[^a-z0-9-]/gi, '-') + '.html');
     showToast('Exported as HTML', 'success');
   } else if (format === 'pdf') {
-    // Generate HTML and open print dialog
     const parsed = PTML.parse(currentDeck.content);
     const html = PTML.buildHTML(parsed, { basePath: '../engine', theme: theme });
     const w = window.open('', '_blank');
