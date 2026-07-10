@@ -9,6 +9,7 @@ module.exports = async (req, res) => {
   }
 
   const pool = getPool();
+  const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
   // ── GET: list user's decks, or get a single deck by id ────────
   if (req.method === 'GET') {
@@ -49,9 +50,6 @@ module.exports = async (req, res) => {
   if (req.method === 'POST') {
     const body = getBody(req);
     const { id, title, content, thumbnail } = body;
-
-    // Check if id is a valid UUID before attempting UPDATE
-    const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
     try {
       // Try update first (only if id looks like a UUID)
