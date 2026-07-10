@@ -369,9 +369,9 @@ function loadDeckUI() {
 
 function loadInspiration(id) {
   var map = {
-    'insp-ptml': { file: '../examples/ptml-overview.md', title: 'PTML Overview' },
-    'insp-code': { file: '../examples/code-showcase.md', title: 'Code Showcase' },
-    'insp-min': { file: '../examples/minimal-deck.md', title: 'Minimal Deck' },
+    'insp-ptml': { file: '../../examples/ptml-overview.md', title: 'PTML Overview' },
+    'insp-code': { file: '../../examples/code-showcase.md', title: 'Code Showcase' },
+    'insp-min': { file: '../../examples/minimal-deck.md', title: 'Minimal Deck' },
     'insp-pitch': { file: 'templates/pitch-deck.md', title: 'Pitch Deck' },
     'insp-tech': { file: 'templates/tech-talk.md', title: 'Tech Talk' },
     'insp-weekly': { file: 'templates/weekly-report.md', title: 'Weekly Report' },
