@@ -430,7 +430,13 @@ function setTheme(theme) {
     // No front matter — prepend
     currentDeck.content = `---\ntheme: ${theme}\n---\n\n` + content;
   }
-  editor.value = currentDeck.content;
+  // Update editor in both modes
+  if (editor.tagName === 'TEXTAREA') {
+    editor.value = currentDeck.content;
+  } else if (editor.tagName === 'DIV') {
+    // Rich Text mode -- re-render from markdown
+    editor.innerHTML = PTMLToolbar.convertMDtoHTML(currentDeck.content);
+  }
   updatePreview();
   scheduleAutosave();
   renderThemePanel();
@@ -622,8 +628,6 @@ function searchPexels() {
 var _pexelsLastResults = null;
 
 function insertPexelsImage(photoId) {
-  // Re-fetch from DOM since we lose reference after render
-  // Instead, store results globally
   if (!_pexelsLastResults) return;
   
   var photo = _pexelsLastResults.find(function(p) { return p.id === photoId; });
@@ -632,22 +636,21 @@ function insertPexelsImage(photoId) {
   var alt = photo.alt || 'Photo';
   var md = '![' + alt + '](' + photo.large + ')\n*' + photo.attribution + '*';
 
-  // Insert at cursor position in editor
-  var textarea = document.getElementById('editor');
-  if (textarea) {
-    var start = textarea.selectionStart;
-    var end = textarea.selectionEnd;
-    var before = textarea.value.substring(0, start);
-    var after = textarea.value.substring(end);
-    textarea.value = before + md + after;
-    textarea.selectionStart = textarea.selectionEnd = start + md.length;
-    
-    // Trigger input event for preview update
-    textarea.dispatchEvent(new Event('input', { bubbles: true }));
+  // Append to current deck content (works in both Markdown and Rich Text modes)
+  if (currentDeck) {
+    currentDeck.content = (currentDeck.content || '') + '\n' + md;
+    // Update editor display
+    if (editor.tagName === 'TEXTAREA') {
+      editor.value = currentDeck.content;
+    } else if (editor.tagName === 'DIV' && typeof PTMLToolbar !== 'undefined') {
+      editor.innerHTML = PTMLToolbar.convertMDtoHTML(currentDeck.content);
+    }
+    updatePreview();
+    scheduleAutosave();
   }
 
   closeModal();
-  showToast('Image inserted!', 'success');
+  showToast('Image inserted', 'success');
 }
 
 // ── Utilities ──────────────────────────────────────────────────
