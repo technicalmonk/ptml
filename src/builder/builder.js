@@ -259,38 +259,37 @@ function renderAnalyticsPanel() {
     return;
   }
 
-  const summary = PTMLClient.getAnalyticsSummary(currentDeck.id);
-  let html = '<div class="stats-grid">';
-  html += `<div class="stat-card"><div class="stat-value">${summary.totalViews}</div><div class="stat-label">Total Views</div></div>`;
-  html += `<div class="stat-card"><div class="stat-value">${summary.uniqueViewers || '—'}</div><div class="stat-label">Unique Viewers</div></div>`;
-  html += '</div>';
+  panelBody.innerHTML = '<p style="color:#555;font-size:13px;padding:20px">Loading analytics...</p>';
 
-  if (summary.lastViewed) {
-    const date = new Date(summary.lastViewed);
-    html += `<p style="color:#555;font-size:12px;margin-bottom:16px">Last viewed: ${date.toLocaleString()}</p>`;
-  } else {
-    html += '<p style="color:#555;font-size:12px;margin-bottom:16px">No views yet. Share your deck to start tracking.</p>';
-  }
+  PTMLClient.getAnalyticsSummary(currentDeck.id).then(function(summary) {
+    let html = '<div class="stats-grid">';
+    html += `<div class="stat-card"><div class="stat-value">${summary.totalViews}</div><div class="stat-label">Total Views</div></div>`;
+    html += `<div class="stat-card"><div class="stat-value">${summary.uniqueViewers || '—'}</div><div class="stat-label">Unique Viewers</div></div>`;
+    html += '</div>';
 
-  if (summary.level === 'enriched' && summary.recentViews) {
-    html += '<table class="analytics-table"><thead><tr><th>Timestamp</th><th>Viewer</th><th>Slide</th></tr></thead><tbody>';
-    summary.recentViews.slice(-10).reverse().forEach(v => {
-      html += `<tr><td>${v.timestamp ? new Date(v.timestamp).toLocaleString() : '—'}</td><td>${v.viewerId || '—'}</td><td>${v.slide || '—'}</td></tr>`;
-    });
-    html += '</tbody></table>';
-
-    if (summary.avgViewsPerDay) {
-      html += `<p style="color:#555;font-size:12px;margin-top:16px">Avg ${summary.avgViewsPerDay} views/day</p>`;
+    if (summary.lastViewed) {
+      const date = new Date(summary.lastViewed);
+      html += `<p style="color:#555;font-size:12px;margin-bottom:16px">Last viewed: ${date.toLocaleString()}</p>`;
+    } else {
+      html += '<p style="color:#555;font-size:12px;margin-bottom:16px">No views yet. Share your deck to start tracking.</p>';
     }
-  } else if (summary.recentViews && summary.recentViews.length > 0) {
-    html += '<table class="analytics-table"><thead><tr><th>Date</th><th>Time</th></tr></thead><tbody>';
-    summary.recentViews.forEach(v => {
-      html += `<tr><td>${v.date}</td><td>${v.time}</td></tr>`;
-    });
-    html += '</tbody></table>';
-  }
 
-  panelBody.innerHTML = html;
+    if (summary.recentViews && summary.recentViews.length > 0) {
+      html += '<table class="analytics-table"><thead><tr><th>Timestamp</th><th>Viewer</th><th>Slide</th></tr></thead><tbody>';
+      summary.recentViews.slice(-10).reverse().forEach(v => {
+        html += `<tr><td>${v.timestamp ? new Date(v.timestamp).toLocaleString() : '—'}</td><td>${v.viewerId || '—'}</td><td>${v.slide || '—'}</td></tr>`;
+      });
+      html += '</tbody></table>';
+
+      if (summary.avgViewsPerDay) {
+        html += `<p style="color:#555;font-size:12px;margin-top:16px">Avg ${summary.avgViewsPerDay} views/day</p>`;
+      }
+    }
+
+    panelBody.innerHTML = html;
+  }).catch(function() {
+    panelBody.innerHTML = '<p style="color:#555;font-size:13px;padding:20px">Failed to load analytics.</p>';
+  });
 }
 
 function renderExportPanel() {

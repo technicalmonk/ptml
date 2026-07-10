@@ -236,9 +236,8 @@
       // hash
       const hashTarget = '#/'+(n+1);
       if (location.hash !== hashTarget && !isPresenterWindow) {
-        history.replaceState(null,'', hashTarget);
+        try { history.replaceState(null,'', hashTarget); } catch(e) { /* srcdoc iframe */ }
       }
-
       // re-trigger entry animations
       slides[n].querySelectorAll('[data-anim]').forEach(el => {
         const a = el.getAttribute('data-anim');

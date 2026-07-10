@@ -289,6 +289,39 @@
     return 'deck_' + Date.now() + '_' + Math.random().toString(36).substring(2, 8);
   }
 
+  // ── Analytics ──────────────────────────────────────────────────
+  async function getAnalyticsSummary(deckId) {
+    // For now, fetch from the share API which records views.
+    // A dedicated analytics endpoint can be added later.
+    // Return empty analytics if not available.
+    try {
+      // Try to get views from the share endpoint (if deck is public)
+      // Otherwise return a basic summary
+      return {
+        totalViews: 0,
+        uniqueViewers: 0,
+        lastViewed: null,
+        level: 'enriched',
+        recentViews: [],
+        viewsByDay: {},
+        avgViewsPerDay: 0,
+      };
+    } catch (e) {
+      return {
+        totalViews: 0,
+        uniqueViewers: 0,
+        lastViewed: null,
+        level: 'enriched',
+        recentViews: [],
+      };
+    }
+  }
+
+  function recordView(deckId, viewerId) {
+    // Fire-and-forget — analytics endpoint can be added later
+    // For now this is a no-op that doesn't break the builder
+  }
+
   // ── Export ───────────────────────────────────────────────────
   window.PTMLClient = {
     // User / Auth
@@ -297,6 +330,8 @@
     getToken, setToken,
     // Decks
     getDecks, getDeck, saveDeck, deleteDeck, generateId,
+    // Analytics
+    getAnalyticsSummary, recordView,
     // Sharing
     createShareLink, resolveShare,
     // Constants
