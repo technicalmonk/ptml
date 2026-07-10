@@ -9,7 +9,7 @@
 
 // ── State ─────────────────────────────────────────────────────
 let currentDeck = null;
-let currentView = 'decks'; // decks | theme | fonts | analytics | export
+let currentView = 'theme'; // theme | fonts | analytics | export
 let saveTimer = null;
 
 // ── DOM refs ───────────────────────────────────────────────────
@@ -36,7 +36,6 @@ async function init() {
   updatePlanBadge();
 
   // Nav buttons
-  document.getElementById('nav-decks').onclick = () => switchView('decks');
   document.getElementById('nav-theme').onclick = () => switchView('theme');
   document.getElementById('nav-fonts').onclick = () => switchView('fonts');
   document.getElementById('nav-analytics').onclick = () => switchView('analytics');
@@ -100,7 +99,7 @@ async function init() {
       };
       PTMLClient.saveDeck(currentDeck).then(function() {
         loadDeckUI();
-        switchView('decks');
+        switchView('theme');
       });
     });
     return;
@@ -122,7 +121,7 @@ async function init() {
         };
         PTMLClient.saveDeck(currentDeck).then(function() {
           loadDeckUI();
-          switchView('decks');
+          switchView('theme');
         });
       });
     }
@@ -138,11 +137,13 @@ async function init() {
       };
       PTMLClient.saveDeck(currentDeck).then(function() {
         loadDeckUI();
-        switchView('decks');
+        switchView('theme');
       });
     });
   }
 
+  // Render the default panel
+  switchView('theme');
 }
 
 // ── Views ──────────────────────────────────────────────────────
@@ -150,40 +151,16 @@ function switchView(view) {
   currentView = view;
   // Update sidebar active state
   document.querySelectorAll('.sidebar button').forEach(b => b.classList.remove('active'));
-  const navMap = { decks: 'nav-decks', theme: 'nav-theme', fonts: 'nav-fonts', analytics: 'nav-analytics', export: 'nav-export' };
+  const navMap = { theme: 'nav-theme', fonts: 'nav-fonts', analytics: 'nav-analytics', export: 'nav-export' };
   if (navMap[view]) document.getElementById(navMap[view]).classList.add('active');
 
-  if (view === 'decks') renderSlidesPanel();
-  else if (view === 'theme') renderThemePanel();
+  if (view === 'theme') renderThemePanel();
   else if (view === 'fonts') renderFontsPanel();
   else if (view === 'analytics') renderAnalyticsPanel();
   else if (view === 'export') renderExportPanel();
 }
 
-// ── Slides Panel ───────────────────────────────────────────────
-function renderSlidesPanel() {
-  panelHeader.textContent = 'Slides';
-
-  let html = `<button onclick="newDeck()" style="width:100%;padding:10px;border:1px dashed rgba(255,255,255,0.15);border-radius:8px;background:transparent;color:#666;font-size:12px;cursor:pointer">+ New Deck</button>`;
-
-  if (currentDeck) {
-    const slideCount = countSlides(currentDeck.content);
-    html += `<div style="margin-top:16px"><div style="font-size:11px;color:#555;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:10px">Current Deck (${slideCount} slides)</div>`;
-    for (let i = 0; i < slideCount; i++) {
-      const title = getSlideTitle(currentDeck.content, i);
-      const subtitle = getSlideSubtitle(currentDeck.content, i);
-      html += `<div class="slide-thumb" onclick="goToSlide(${i})" style="background-image:url(${slideThumbSVG(title, subtitle, getThemeAccent(extractTheme(currentDeck.content)||'minimal-white'))});background-size:cover;background-position:center">
-        <span class="slide-thumb-num">${i + 1}</span>
-      </div>`;
-    }
-    html += '</div>';
-  } else {
-    html += '<div style="padding:20px;text-align:center;color:#555;font-size:13px">No deck open.<br>Create one or select from the Dashboard.</div>';
-  }
-
-  panelBody.innerHTML = html;
-}
-
+// ── Theme Panel ────────────────────────────────────────────────
 function renderThemePanel() {
   panelHeader.textContent = 'Theme';
   const all = PTMLClient.ALL_THEMES;
@@ -351,7 +328,7 @@ function loadDeck(id) {
     if (!deck) { showToast('Deck not found', 'error'); return; }
     currentDeck = deck;
     loadDeckUI();
-    if (currentView === 'decks') renderSlidesPanel();
+    if (currentView === 'theme') renderThemePanel();
   }).catch(function(err) {
     showToast('Failed to load deck', 'error');
   });
@@ -389,7 +366,7 @@ function loadInspiration(id) {
       };
       PTMLClient.saveDeck(currentDeck).then(function() {
         loadDeckUI();
-        switchView('decks');
+        switchView('theme');
       });
     })
     .catch(function() { showToast('Failed to load inspiration', 'error'); });
@@ -403,7 +380,7 @@ function saveDeck() {
   ThumbnailGen.updateDeckThumbnail(currentDeck);
   PTMLClient.saveDeck(currentDeck).then(function() {
     showToast('Saved', 'success');
-    if (currentView === 'decks') renderSlidesPanel();
+    if (currentView === 'theme') renderThemePanel();
   }).catch(function() {
     showToast('Save failed', 'error');
   });
@@ -425,14 +402,24 @@ function scheduleAutosave() {
 
 // ── Preview ────────────────────────────────────────────────────
 function updatePreview() {
-  if (!editor.value.trim()) {
+  // Get content from either textarea (Markdown mode) or contentEditable (Text mode)
+  var content = '';
+  if (currentDeck && currentDeck.content) {
+    content = currentDeck.content;
+  } else if (editor.value) {
+    content = editor.value;
+  } else if (editor.textContent) {
+    content = editor.textContent;
+  }
+
+  if (!content.trim()) {
     previewEmpty.style.display = 'flex';
     preview.style.display = 'none';
     return;
   }
 
   try {
-    const parsed = PTML.parse(editor.value);
+    const parsed = PTML.parse(content);
     const html = PTML.buildHTML(parsed, { basePath: '../engine' });
     preview.srcdoc = html;
     previewEmpty.style.display = 'none';
