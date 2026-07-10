@@ -21,6 +21,9 @@
 .msg.error { background:#fef2f2; color:var(--c-red); border:1px solid #fecaca; }
 .msg.success { background:#f0fdf4; color:var(--c-green); border:1px solid #bbf7d0; }
 .btn-loading { opacity:0.6; pointer-events:none; }
+.input:focus { border-color:var(--c-accent); box-shadow:0 0 0 3px var(--c-accent-subtle); }
+.auth-footer a:focus { outline:2px solid var(--c-accent); outline-offset:2px; border-radius:3px; }
+.auth-footer a:hover { text-decoration:underline; }
 </style>
 </head>
 <body>
@@ -42,7 +45,7 @@
       </div>
       <button class="btn btn-primary" id="signin-btn" onclick="doLogin()" style="width:100%;justify-content:center;padding:10px">Sign in</button>
       <div class="auth-footer">
-        Don't have an account? <a onclick="showSignup()">Create one</a>
+        Don't have an account? <a href="javascript:void(0)" onclick="showSignup()" onkeydown="if(event.key==='Enter')showSignup()">Create one</a>
       </div>
     </div>
 
@@ -63,7 +66,7 @@
       </div>
       <button class="btn btn-primary" id="signup-btn" onclick="doSignup()" style="width:100%;justify-content:center;padding:10px">Create account</button>
       <div class="auth-footer">
-        Already have an account? <a onclick="showLogin()">Sign in</a>
+        Already have an account? <a href="javascript:void(0)" onclick="showLogin()" onkeydown="if(event.key==='Enter')showLogin()">Sign in</a>
       </div>
     </div>
   </div>
@@ -81,11 +84,13 @@ function showMsg(id, text, type) {
 function showSignup() {
   document.getElementById('login-form').style.display = 'none';
   document.getElementById('signup-form').style.display = 'block';
+  document.getElementById('signup-name').focus();
 }
 
 function showLogin() {
   document.getElementById('signup-form').style.display = 'none';
   document.getElementById('login-form').style.display = 'block';
+  document.getElementById('email').focus();
 }
 
 function doLogin() {

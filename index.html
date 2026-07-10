@@ -9,7 +9,7 @@
 .hero { min-height:100vh; display:flex; flex-direction:column; align-items:center;
   justify-content:center; text-align:center; padding:40px; position:relative; overflow:hidden; }
 .hero::before { content:''; position:absolute; inset:0;
-  background:radial-gradient(ellipse at 50% 0%, rgba(0,102,255,0.05), transparent 70%); }
+  background:radial-gradient(ellipse at 50% 0%, rgba(0,102,255,0.04), transparent 70%); }
 .hero-content { position:relative; z-index:1; max-width:720px; }
 .logo { font-size:4rem; font-weight:900; letter-spacing:-0.04em; color:var(--c-text);
   margin-bottom:12px; }
@@ -23,9 +23,8 @@
 .feature { padding:24px; background:var(--c-surface); border:1px solid var(--c-border);
   border-radius:var(--radius-lg); box-shadow:var(--shadow-sm); }
 .feature:hover { border-color:var(--c-border-hov); box-shadow:var(--shadow); }
-.feature-icon { font-size:28px; margin-bottom:12px; }
-.feature h3 { font-size:1.1rem; margin-bottom:8px; }
-.feature p { color:var(--c-text-2); font-size:0.9rem; }
+.feature h3 { font-size:1.1rem; margin-bottom:8px; font-weight:600; }
+.feature p { color:var(--c-text-2); font-size:0.9rem; line-height:1.6; }
 
 .pricing { padding:80px 40px; max-width:960px; margin:0 auto; }
 .pricing h2 { text-align:center; font-size:2rem; margin-bottom:48px; }
@@ -40,7 +39,7 @@
 .plan-price span { font-size:0.9rem; font-weight:400; color:var(--c-text-3); }
 .plan-features { list-style:none; padding:0; margin:0 0 32px; text-align:left; }
 .plan-features li { padding:8px 0; color:var(--c-text-2); font-size:0.9rem; }
-.plan-features li::before { content:'✓ '; color:var(--c-accent); font-weight:700; }
+.plan-features li::before { content:'\2013  '; color:var(--c-text-3); font-weight:400; }
 
 .footer { text-align:center; padding:40px; color:var(--c-text-3); font-size:0.85rem;
   border-top:1px solid var(--c-border); }
@@ -56,7 +55,7 @@
       <a href="login.html" class="btn btn-primary btn-lg">Start Building</a>
       <a href="viewer.html" class="btn btn-secondary btn-lg">View Example Deck</a>
     </div>
-    <p class="hero-note">No signup required. All features free. Start writing decks in Markdown.</p>
+    <p class="hero-note">Free forever. All features included. Write decks in Markdown.</p>
   </div>
 </div>
 
@@ -64,34 +63,28 @@
   <h2>Why HTML Presentations?</h2>
   <div class="feature-grid">
     <div class="feature">
-      <div class="feature-icon">🌐</div>
       <h3>Cross-Platform</h3>
       <p>Runs natively in all modern browsers. No plugins, no downloads, no compatibility issues.</p>
     </div>
     <div class="feature">
-      <div class="feature-icon">📱</div>
       <h3>Device Flexible</h3>
       <p>Desktops, laptops, tablets, smartphones. Your deck looks great on every screen.</p>
     </div>
     <div class="feature">
-      <div class="feature-icon">🔗</div>
       <h3>Easy Sharing</h3>
-      <p>Share a simple HTTP link. No more emailing 50MB PPTX files.</p>
+      <p>Share a link. No more emailing 50MB PPTX files.</p>
     </div>
     <div class="feature">
-      <div class="feature-icon">✏️</div>
       <h3>Live Editing</h3>
       <p>Write in Markdown, see instant preview. Real-time, no compile step.</p>
     </div>
     <div class="feature">
-      <div class="feature-icon">🎨</div>
       <h3>36 Themes</h3>
       <p>From minimal-white to cyberpunk-neon. Switch themes live with a single keypress.</p>
     </div>
     <div class="feature">
-      <div class="feature-icon">📊</div>
-      <h3>Analytics</h3>
-      <p>Track who viewed your presentation, when, and how many times. Enriched data for everyone.</p>
+      <h3>Shareable Links</h3>
+      <p>Generate a short link to your deck. Anyone can view it in their browser, no account needed.</p>
     </div>
   </div>
 </div>
@@ -102,12 +95,11 @@
     <div class="plan-name">PTML</div>
     <div class="plan-price">$0<span>/forever</span></div>
     <ul class="plan-features">
-      <li>Unlimited decks & slides</li>
+      <li>Unlimited decks and slides</li>
       <li>All 36 themes</li>
-      <li>Markdown + Rich Text editor</li>
-      <li>Stock photo search (Pexels)</li>
-      <li>Export to HTML, embed, or PDF</li>
-      <li>Enriched analytics (viewer tracking)</li>
+      <li>Markdown and Rich Text editor</li>
+      <li>Shareable links</li>
+      <li>Markdown export</li>
       <li>Presenter mode with speaker notes</li>
       <li>47 animations (27 CSS + 20 canvas FX)</li>
     </ul>
@@ -116,8 +108,8 @@
 </div>
 
 <div class="footer">
-  <p>PTML — Built with HTML, CSS, JavaScript, and Markdown. No frameworks, no build step.</p>
-  <p style="margin-top:8px">MIT License · <a href="https://github.com/technicalmonk/ptml">GitHub</a></p>
+  <p>PTML -- Built with HTML, CSS, JavaScript, and Markdown. No frameworks, no build step.</p>
+  <p style="margin-top:8px">MIT License -- <a href="https://github.com/technicalmonk/ptml">GitHub</a></p>
 </div>
 
 </body>

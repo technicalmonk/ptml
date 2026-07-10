@@ -127,12 +127,12 @@ function initDashboard(user) {
 
   // Inspiration decks
   var inspirations = [
-    { id:'insp-ptml', title:'PTML Overview', desc:'5 slides introducing PTML', slides:5, icon:'📊' },
-    { id:'insp-code', title:'Code Showcase', desc:'Developer-focused with code blocks', slides:4, icon:'💻' },
-    { id:'insp-min', title:'Minimal Deck', desc:'Clean, no directives, auto-layout', slides:4, icon:'📄' },
-    { id:'insp-pitch', title:'Pitch Deck', desc:'Startup pitch template', slides:6, icon:'🚀' },
-    { id:'insp-tech', title:'Tech Talk', desc:'Engineering presentation', slides:6, icon:'🔧' },
-    { id:'insp-weekly', title:'Weekly Report', desc:'Status update template', slides:5, icon:'📈' },
+    { id:'insp-ptml', title:'PTML Overview', desc:'5 slides introducing PTML', slides:5 },
+    { id:'insp-code', title:'Code Showcase', desc:'Developer-focused with code blocks', slides:4 },
+    { id:'insp-min', title:'Minimal Deck', desc:'Clean, no directives, auto-layout', slides:4 },
+    { id:'insp-pitch', title:'Pitch Deck', desc:'Startup pitch template', slides:6 },
+    { id:'insp-tech', title:'Tech Talk', desc:'Engineering presentation', slides:6 },
+    { id:'insp-weekly', title:'Weekly Report', desc:'Status update template', slides:5 },
   ];
 
   renderInspirations(inspirations);
@@ -151,7 +151,7 @@ async function loadDecks() {
 function renderMyDecks(decks) {
   var container = document.getElementById('my-decks');
   if (!decks || decks.length === 0) {
-    container.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">📄</div><h3>No presentations yet</h3><p>Create your first presentation to get started.</p><button class="btn btn-primary" onclick="newPresentation()">+ New Presentation</button></div>';
+    container.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><h3>No presentations yet</h3><p>Create your first presentation to get started.</p><button class="btn btn-primary" onclick="newPresentation()">+ New Presentation</button></div>';
     document.getElementById('my-decks-section').querySelector('.section-header').style.display = 'none';
     return;
   }
@@ -161,7 +161,7 @@ function renderMyDecks(decks) {
     if (!d.content) slideCount = '?';
     var date = d.updated_at ? new Date(d.updated_at).toLocaleDateString()
              : d.updatedAt ? new Date(d.updatedAt).toLocaleDateString() : '';
-    var thumb = d.thumbnail ? '<img src="' + d.thumbnail + '" style="width:100%;height:100%;object-fit:cover" alt="">' : '<span>📊</span>';
+    var thumb = d.thumbnail ? '<img src="' + d.thumbnail + '" style="width:100%;height:100%;object-fit:cover" alt="">' : '';
     return '<div class="preso-card" onclick="openDeck(\'' + d.id + '\')">' +
       '<div class="preso-thumb">' + thumb +
       '<span class="slide-count">' + slideCount + ' slides</span></div>' +
@@ -178,7 +178,7 @@ function renderInspirations(inspirations) {
   var container = document.getElementById('inspiration-grid');
   container.innerHTML = inspirations.map(function(d) {
     return '<div class="preso-card" onclick="openInspiration(\'' + d.id + '\')">' +
-      '<div class="preso-thumb"><span>' + d.icon + '</span>' +
+      '<div class="preso-thumb">' +
       '<span class="slide-count">' + d.slides + ' slides</span></div>' +
       '<div class="preso-body"><h3>' + d.title + ' <span class="inspiration-tag">example</span></h3>' +
       '<p>' + d.desc + '</p></div>' +

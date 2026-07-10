@@ -24,10 +24,10 @@ Business users are ready to do away with PPTX files. Here is why HTML is the ans
 - **Cross-platform compatibility** — Runs natively in all modern browsers without plugins
 - **Device flexibility** — Works on desktops, laptops, tablets, and smartphones
 - **Easy sharing** — Simple HTTP links replace complex file attachments
-- **Live editing** — Real-time collaboration and instant preview capabilities
+- **Live editing** — Write in Markdown, see instant preview
 - **Reduced security risks** — No macro-enabled files or executable content
 - **Performance** — Fast load times and smooth transitions
-- **Analytics** — See who viewed your presentation, when, how many times, which slides
+- **Shareable links** — Generate a short link anyone can view in their browser
 
 ---
 
@@ -42,26 +42,7 @@ Business users are ready to do away with PPTX files. Here is why HTML is the ans
 2. Create agentic tooling (skills)
 3. Build presentation builder
 4. Build presentation viewer
-5. Freemium model (free / pro)
-
----
-
-<!-- layout: comparison -->
-
-[Pricing]
-## Freemium Model
-
-### Free Tier
-- Basic slide editing and presentation capabilities
-- Limited template selection
-- Export to HTML/PDF only
-- Basic analytics (view count, date and time viewed)
-
-### Pro Tier
-- PPTX Importation and Conversion Agent
-- Design Agent
-- Content Review Agent
-- Enriched Analytics (free users can only track view count, date and time viewed)
+5. Free for everyone — all features, no tiers
 
 ---
 

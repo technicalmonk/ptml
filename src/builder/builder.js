@@ -280,13 +280,13 @@ function renderExportPanel() {
 
   // Share link (top)
   html += `<button onclick="copyShareLink()" style="padding:14px;border:1px solid rgba(59,108,255,0.2);border-radius:10px;background:rgba(59,108,255,0.05);color:#e0e0e6;font-size:13px;cursor:pointer;text-align:left">
-    <div style="font-weight:600;margin-bottom:2px">🔗 Copy Share Link</div>
+    <div style="font-weight:600;margin-bottom:2px">Copy Share Link</div>
     <div style="font-size:11px;color:#555">Share a link to the live viewer</div>
   </button>`;
 
   // Export as Markdown
   html += `<button onclick="exportDeck('markdown')" style="padding:14px;border:1px solid rgba(255,255,255,0.08);border-radius:10px;background:#1a1a1e;color:#e0e0e6;font-size:13px;cursor:pointer;text-align:left">
-    <div style="font-weight:600;margin-bottom:2px">📄 Export as Markdown</div>
+    <div style="font-weight:600;margin-bottom:2px">Export as Markdown</div>
     <div style="font-size:11px;color:#555">Download the .md source file</div>
   </button>`;
 
@@ -492,7 +492,7 @@ function copyToClipboard(url, msg) {
   navigator.clipboard.writeText(url).then(function() {
     showToast(msg, 'success');
   }).catch(function() {
-    modalContent.innerHTML = '<h2>🔗 Share Link</h2><p>Copy this link to share your deck:</p>' +
+    modalContent.innerHTML = '<h2>Share Link</h2><p>Copy this link to share your deck:</p>' +
       '<textarea style="width:100%;height:80px;font-family:monospace;font-size:11px;padding:10px;border:1px solid var(--c-border);border-radius:8px;background:var(--c-surface-hov);color:var(--c-text);resize:none" readonly>' + url + '</textarea>' +
       '<button onclick="closeModal()" class="btn btn-secondary" style="margin-top:12px">Close</button>';
     modalOverlay.classList.add('show');
@@ -532,7 +532,7 @@ function showPexelsModal() {
   const savedKey = hasKey ? PexelsClient.getApiKey() : '';
 
   modalContent.innerHTML = `
-    <h2>🖼 Search Stock Photos</h2>
+    <h2>Search Stock Photos</h2>
     <p>Royalty-free images from Pexels. Free to use with attribution.</p>
     ${!hasKey ? `
     <div style="margin-bottom:16px">
